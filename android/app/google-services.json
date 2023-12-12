@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "482948265102",
+    "project_id": "rss-feed-reader-897ad",
+    "storage_bucket": "rss-feed-reader-897ad.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:482948265102:android:d1fb9388a8aa61a3de05df",
+        "android_client_info": {
+          "package_name": "com.example.rss_feed_reader_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDkpkbI53rpEqAkRuDGZk0lRNK6AM8NoH8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
