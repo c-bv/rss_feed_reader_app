@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:rss_feed_reader_app/src/services/auth_service.dart';
 
-class HomePage extends StatelessWidget {
-  const HomePage({super.key});
+class HomeScreen extends StatelessWidget {
+  final AuthService _authService = AuthService();
+
+  HomeScreen({super.key});
+
 
   @override
   Widget build(BuildContext context) {
@@ -9,6 +13,12 @@ class HomePage extends StatelessWidget {
       appBar: appBar(),
       body: Column(
         children: [
+           ActionChip(
+          onPressed: () {
+            _authService.signOut();
+          },
+          label: const Text('Sign Out'),
+        ),
           TextField(
             decoration: InputDecoration(
               hintText: 'Enter RSS Feed URL',
