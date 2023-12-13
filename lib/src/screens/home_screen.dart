@@ -12,7 +12,7 @@ class HomePage extends StatelessWidget {
           TextField(
             decoration: InputDecoration(
               hintText: 'Enter RSS Feed URL',
-              border: OutlineInputBorder(),
+              border: const OutlineInputBorder(),
               suffixIcon: IconButton(
                 onPressed: () {},
                 icon: const Icon(Icons.search),
