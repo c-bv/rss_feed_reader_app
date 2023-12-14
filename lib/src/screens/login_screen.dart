@@ -31,13 +31,14 @@ class AuthFormState extends State<AuthForm> {
 
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _displayNameController = TextEditingController();
 
   void _handleLogin() async {
     String email = _emailController.text.trim();
-    String password = _passwordController.text.trim();
+    String password = _passwordController.text;
 
     try {
-      await _authService.signIn(email: email, password: password);
+      await _authService.login(email: email, password: password);
     } on FirebaseAuthException catch (e) {
       switch (e.code) {
         case 'invalid-credential':
@@ -64,12 +65,13 @@ class AuthFormState extends State<AuthForm> {
     }
   }
 
-  void _handleRegistration() async {
+  void _handleRegister() async {
     String email = _emailController.text.trim();
-    String password = _passwordController.text.trim();
+    String password = _passwordController.text;
+    String displayName = _displayNameController.text.trim();
 
     try {
-      await _authService.register(email: email, password: password);
+      await _authService.register(email: email, password: password , displayName: displayName);
       _showErrorDialog(
         title: 'Registration successful',
         message: 'Please verify your email address.',
@@ -126,6 +128,11 @@ class AuthFormState extends State<AuthForm> {
         ),
         const SizedBox(height: 16.0),
         TextField(
+          controller: _displayNameController,
+          decoration: const InputDecoration(labelText: 'Display Name'),
+        ),
+        const SizedBox(height: 16.0),
+        TextField(
           controller: _passwordController,
           decoration: const InputDecoration(labelText: 'Password'),
           obscureText: true,
@@ -140,7 +147,7 @@ class AuthFormState extends State<AuthForm> {
         const SizedBox(height: 16.0),
         ElevatedButton(
           onPressed: () {
-            _handleRegistration();
+            _handleRegister();
           },
           child: const Text('Register'),
         ),
