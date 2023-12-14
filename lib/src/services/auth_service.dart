@@ -6,6 +6,7 @@ class AuthService {
   Stream<User?> get authStateChanges => _auth.authStateChanges();
 
   bool get isUserLoggedIn => _auth.currentUser != null;
+  bool get isEmailVerified => _auth.currentUser?.emailVerified ?? false;
 
   Future<UserCredential?> signIn(
       {required String email, required String password}) async {
@@ -14,10 +15,14 @@ class AuthService {
         email: email,
         password: password,
       );
+
+      if (!isEmailVerified) {
+        throw FirebaseAuthException(code: 'email-not-verified');
+      }
+
       return userCredential;
     } catch (e) {
-      print('Sign in error: $e');
-      return null;
+      rethrow;
     }
   }
 
@@ -29,14 +34,24 @@ class AuthService {
         email: email,
         password: password,
       );
+
+      await userCredential.user!.sendEmailVerification();
+
       return userCredential;
     } catch (e) {
-      print('Registration error: $e');
-      return null;
+      rethrow;
     }
   }
 
   Future<void> signOut() async {
     await _auth.signOut();
+  }
+
+  Future<void> reloadUser() async {
+    try {
+      await _auth.currentUser?.reload();
+    } catch (e) {
+      print('Error reloading user: $e');
+    }
   }
 }

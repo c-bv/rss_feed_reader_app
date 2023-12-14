@@ -23,13 +23,12 @@ class AuthForm extends StatefulWidget {
   const AuthForm({super.key});
 
   @override
-  _AuthFormState createState() => _AuthFormState();
+  AuthFormState createState() => AuthFormState();
 }
 
-class _AuthFormState extends State<AuthForm> {
-  
+class AuthFormState extends State<AuthForm> {
   final AuthService _authService = AuthService();
-  
+
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
@@ -37,13 +36,31 @@ class _AuthFormState extends State<AuthForm> {
     String email = _emailController.text.trim();
     String password = _passwordController.text.trim();
 
-    UserCredential? userCredential =
-        await _authService.signIn(email: email, password: password);
-
-    if (userCredential != null) {
-      print('Login successful! User ID: ${userCredential.user!.uid}');
-    } else {
-      print('Login failed');
+    try {
+      await _authService.signIn(email: email, password: password);
+    } on FirebaseAuthException catch (e) {
+      switch (e.code) {
+        case 'invalid-credential':
+          _showErrorDialog(
+            title: 'Invalid credentials',
+            message: 'Invalid credentials provided for that user.',
+          );
+          break;
+        case 'email-not-verified':
+          _showErrorDialog(
+            title: 'Email not verified',
+            message: 'Please verify your email address.',
+          );
+          await _authService.signOut();
+          break;
+        default:
+          _showErrorDialog(
+            title: 'An error occurred',
+            message: e.message ?? 'An error occurred',
+          );
+      }
+    } catch (e) {
+      print('Login error: $e');
     }
   }
 
@@ -51,14 +68,50 @@ class _AuthFormState extends State<AuthForm> {
     String email = _emailController.text.trim();
     String password = _passwordController.text.trim();
 
-    UserCredential? userCredential =
-        await _authService.register(email: email, password: password);
-
-    if (userCredential != null) {
-      print('Registration successful! User ID: ${userCredential.user!.uid}');
-    } else {
-      print('Registration failed');
+    try {
+      await _authService.register(email: email, password: password);
+      _showErrorDialog(
+        title: 'Registration successful',
+        message: 'Please verify your email address.',
+      );
+      await _authService.signOut();
+    } on FirebaseAuthException catch (e) {
+      switch (e.code) {
+        case 'email-already-in-use':
+          _showErrorDialog(
+            title: 'Email already in use',
+            message: e.message ?? 'Email already in use',
+          );
+          break;
+        default:
+          _showErrorDialog(
+            title: 'An error occurred',
+            message: e.message ?? 'An error occurred',
+          );
+      }
+    } catch (e) {
+      print('Registration error: $e');
     }
+  }
+
+  void _showErrorDialog({required String title, required String message}) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(title),
+          content: Text(message),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override

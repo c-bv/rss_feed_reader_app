@@ -24,14 +24,13 @@ class MyApp extends StatelessWidget {
   final AuthService _authService = AuthService();
 
   MyApp({super.key});
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: AnimatedSplashScreen(
         splash: const FlutterLogo(size: 100),
-        duration: 3000,
+        duration: 1000,
         nextScreen: StreamBuilder<User?>(
           stream: _authService.authStateChanges,
           builder: (context, snapshot) {
@@ -40,9 +39,11 @@ class MyApp extends StatelessWidget {
                 child: CircularProgressIndicator(),
               );
             } else {
-              return _authService.isUserLoggedIn
-                  ? HomeScreen()
-                  : const LoginScreen();
+              if (_authService.isUserLoggedIn && _authService.isEmailVerified) {
+                return HomeScreen();
+              } else {
+                return const LoginScreen();
+              }
             }
           },
         ),
