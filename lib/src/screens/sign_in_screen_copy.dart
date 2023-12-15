@@ -2,8 +2,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:rss_feed_reader_app/src/services/auth_service.dart';
 
-class LoginScreen extends StatelessWidget {
-  const LoginScreen({super.key});
+class SignInScreen extends StatelessWidget {
+  const SignInScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -71,7 +71,8 @@ class AuthFormState extends State<AuthForm> {
     String displayName = _displayNameController.text.trim();
 
     try {
-      await _authService.register(email: email, password: password , displayName: displayName);
+      await _authService.register(
+          email: email, password: password, displayName: displayName);
       _showErrorDialog(
         title: 'Registration successful',
         message: 'Please verify your email address.',

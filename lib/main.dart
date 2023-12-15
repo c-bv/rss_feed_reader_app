@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:rss_feed_reader_app/src/config/firebase_options.dart';
 import 'package:rss_feed_reader_app/src/screens/home_screen.dart';
-import 'package:rss_feed_reader_app/src/screens/login_screen.dart';
+import 'package:rss_feed_reader_app/src/screens/sign_in_screen.dart';
 import 'package:rss_feed_reader_app/src/services/auth_service.dart';
 
 void main() async {
@@ -42,7 +42,7 @@ class MyApp extends StatelessWidget {
               if (_authService.isUserLoggedIn && _authService.isEmailVerified) {
                 return HomeScreen();
               } else {
-                return const LoginScreen();
+                return const SignInScreen();
               }
             }
           },
