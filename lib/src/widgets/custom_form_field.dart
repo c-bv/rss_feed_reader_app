@@ -36,7 +36,7 @@ class CustomFormField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
- 
+    final theme = Theme.of(context);
     return TextFormField(
       maxLines: maxLines,
       controller: _emailController,
@@ -51,34 +51,31 @@ class CustomFormField extends StatelessWidget {
       decoration: InputDecoration(
         labelText: isLabelEnabled ? _label : null,
         hintText: _hint,
-        hintStyle: const TextStyle(
-        ),
         errorStyle: const TextStyle(
           fontWeight: FontWeight.bold,
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8.0),
-          borderSide: const BorderSide(
+          borderSide:   BorderSide(
+            color: theme.colorScheme.primary,
             width: 2,
           ),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8.0),
-          borderSide: const BorderSide(
+          borderSide: BorderSide(
+            color: theme.colorScheme.onSurface.withOpacity(0.2),
+            width: 2,
           ),
         ),
         errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8.0),
-          borderSide: const BorderSide(
+          borderSide: BorderSide(
+            color: theme.colorScheme.error,
             width: 2,
-            color: Colors.red,
           ),
         ),
         focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8.0),
-          borderSide: const BorderSide(
+          borderSide: BorderSide(
+            color: theme.colorScheme.error,
             width: 2,
-            color: Colors.red,
           ),
         ),
       ),
