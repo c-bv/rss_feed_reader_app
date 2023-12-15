@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:rss_feed_reader_app/src//utils/validator.dart';
+import 'package:rss_feed_reader_app/src/utils/validator.dart';
 import 'package:rss_feed_reader_app/src/screens/register_screen.dart';
 import 'package:rss_feed_reader_app/src/services/auth_service.dart';
 import 'package:rss_feed_reader_app/src/widgets/custom_form_field.dart';
@@ -102,26 +102,15 @@ class SignInFormState extends State<SignInForm> {
                   padding: const EdgeInsets.only(left: 0.0, right: 0.0),
                   child: SizedBox(
                     width: double.maxFinite,
-                    child: ElevatedButton(
-                      style: ButtonStyle(
-                        backgroundColor: MaterialStateProperty.all(
-                          Colors.orange,
-                        ),
-                        shape: MaterialStateProperty.all(
-                          RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                        ),
-                      ),
+                    child: FilledButton(
                       onPressed: _submitForm,
                       child: const Padding(
                         padding: EdgeInsets.only(top: 16.0, bottom: 16.0),
                         child: Text(
                           'LOGIN',
                           style: TextStyle(
-                            fontSize: 24,
+                            fontSize: 22,
                             fontWeight: FontWeight.bold,
-                            color: Colors.white,
                             letterSpacing: 2,
                           ),
                         ),

@@ -20,7 +20,7 @@ class SignInScreenState extends State<SignInScreen> {
         _passwordFocusNode.unfocus();
       },
       child: Scaffold(
-        backgroundColor: Colors.white,
+
         body: SafeArea(
           child: Stack(
             children: [
@@ -34,28 +34,24 @@ class SignInScreenState extends State<SignInScreen> {
                   mainAxisSize: MainAxisSize.max,
                   children: [
                     const Row(),
-                    const Expanded(
+                    Expanded(
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Flexible(
                             flex: 1,
-                            child: FlutterLogo(size: 100),
-                          ),
-                          SizedBox(height: 20),
-                          Text(
-                            'FlutterFire',
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 40,
+                            child: Image.asset(
+                              'assets/images/rss-logo.png',
+                              height: 160,
                             ),
                           ),
-                          Text(
-                            'Authentication',
+                          const SizedBox(height: 20),
+                          const Text(
+                            'RSS Feed Reader',
                             style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 40,
+                              fontSize: 32,
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
                         ],

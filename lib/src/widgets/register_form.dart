@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:rss_feed_reader_app/src/screens/sign_in_screen.dart';
 import 'package:rss_feed_reader_app/src/services/auth_service.dart';
+import 'package:rss_feed_reader_app/src/utils/validator.dart';
 import 'package:rss_feed_reader_app/src/widgets/custom_form_field.dart';
-
-import '../utils/validator.dart';
 
 class RegisterForm extends StatefulWidget {
   final FocusNode nameFocusNode;
@@ -28,11 +27,35 @@ class RegisterFormState extends State<RegisterForm> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _confirmPasswordController = TextEditingController();
+  final TextEditingController _confirmPasswordController =
+      TextEditingController();
 
   final _registerFormKey = GlobalKey<FormState>();
 
   bool _isSigningUp = false;
+
+  void _submitForm() async {
+    widget.nameFocusNode.unfocus();
+    widget.emailFocusNode.unfocus();
+    widget.passwordFocusNode.unfocus();
+    widget.confirmPasswordFocusNode.unfocus();
+
+    setState(() {
+      _isSigningUp = true;
+    });
+
+    if (_registerFormKey.currentState!.validate()) {
+      await _authService.register(
+        email: _emailController.text.trim(),
+        password: _passwordController.text.trim(),
+        displayName: _nameController.text.trim(),
+      );
+    }
+
+    setState(() {
+      _isSigningUp = false;
+    });
+  }
 
   Route _routeToSignInScreen() {
     return PageRouteBuilder(
@@ -105,7 +128,7 @@ class RegisterFormState extends State<RegisterForm> {
                   label: 'Password',
                   hint: 'Enter your password',
                 ),
-                 const SizedBox(height: 16.0),
+                const SizedBox(height: 16.0),
                 CustomFormField(
                   controller: _confirmPasswordController,
                   focusNode: widget.confirmPasswordFocusNode,
@@ -136,37 +159,8 @@ class RegisterFormState extends State<RegisterForm> {
                   padding: const EdgeInsets.only(left: 0.0, right: 0.0),
                   child: SizedBox(
                     width: double.maxFinite,
-                    child: ElevatedButton(
-                      style: ButtonStyle(
-                        backgroundColor: MaterialStateProperty.all(
-                          Colors.blue,
-                        ),
-                        shape: MaterialStateProperty.all(
-                          RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                        ),
-                      ),
-                      onPressed: () async {
-                        widget.emailFocusNode.unfocus();
-                        widget.passwordFocusNode.unfocus();
-
-                        setState(() {
-                          _isSigningUp = true;
-                        });
-
-                        if (_registerFormKey.currentState!.validate()) {
-                          await _authService.register(
-                            email: _emailController.text.trim(),
-                            password: _passwordController.text.trim(),
-                            displayName: _nameController.text.trim(),
-                          );
-                        }
-
-                        setState(() {
-                          _isSigningUp = false;
-                        });
-                      },
+                    child: FilledButton(
+                      onPressed: _submitForm,
                       child: const Padding(
                         padding: EdgeInsets.only(top: 16.0, bottom: 16.0),
                         child: Text(

@@ -3,10 +3,12 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:provider/provider.dart';
 import 'package:rss_feed_reader_app/src/config/firebase_options.dart';
 import 'package:rss_feed_reader_app/src/screens/home_screen.dart';
 import 'package:rss_feed_reader_app/src/screens/sign_in_screen.dart';
 import 'package:rss_feed_reader_app/src/services/auth_service.dart';
+import 'package:rss_feed_reader_app/src/providers/theme_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -17,7 +19,7 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  runApp(MyApp());
+   runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -26,29 +28,38 @@ class MyApp extends StatelessWidget {
   MyApp({super.key});
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: AnimatedSplashScreen(
-        splash: const FlutterLogo(size: 100),
-        duration: 1000,
-        nextScreen: StreamBuilder<User?>(
-          stream: _authService.authStateChanges,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(
-                child: CircularProgressIndicator(),
-              );
-            } else {
-              if (_authService.isUserLoggedIn && _authService.isEmailVerified) {
-                return HomeScreen();
-              } else {
-                return const SignInScreen();
-              }
-            }
-          },
-        ),
-        splashTransition: SplashTransition.fadeTransition,
-        backgroundColor: Colors.white,
+    return ChangeNotifierProvider(
+      create: (BuildContext context) => ThemeProvider(),
+      child: Consumer<ThemeProvider>(
+        builder: (context, themeProvider, child) {
+          return MaterialApp(
+            debugShowCheckedModeBanner: false,
+            theme: themeProvider.currentTheme,
+            home: AnimatedSplashScreen(
+              splash: const FlutterLogo(size: 100),
+              duration: 1000,
+              nextScreen: StreamBuilder<User?>(
+                stream: _authService.authStateChanges,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  } else {
+                    if (_authService.isUserLoggedIn &&
+                        _authService.isEmailVerified) {
+                      return HomeScreen();
+                    } else {
+                      return const SignInScreen();
+                    }
+                  }
+                },
+              ),
+              splashTransition: SplashTransition.fadeTransition,
+              backgroundColor: Colors.white,
+            ),
+          );
+        },
       ),
     );
   }
