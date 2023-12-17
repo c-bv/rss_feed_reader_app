@@ -14,9 +14,9 @@ class Destination {
 }
 
 const List<Destination> destinations = <Destination>[
-  Destination('Home', Icon(Icons.home_outlined), Icon(Icons.home)),
+  Destination('All feeds', Icon(Icons.home_outlined), Icon(Icons.home)),
   Destination(
-      'Saved', Icon(Icons.bookmark_border_outlined), Icon(Icons.bookmark)),
+      'Saved articles', Icon(Icons.bookmark_border_outlined), Icon(Icons.bookmark)),
   Destination('Settings', Icon(Icons.settings_outlined), Icon(Icons.settings)),
 ];
 
@@ -33,31 +33,27 @@ class _NavDrawerState extends State<NavDrawer> {
 
   void handleScreenChanged(int selectedScreen, NavProvider provider) {
     provider.setScreenIndex(selectedScreen);
-    Navigator.pop(context); // Close the drawer after selecting a destination
+    Navigator.pop(context);
 
     switch (selectedScreen) {
       case 0:
-        // Navigate to the HomeScreen
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => HomeScreen()),
         );
         break;
       case 1:
-        // Navigate to the RegisterScreen
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => const RegisterScreen()),
         );
         break;
       case 2:
-        // Navigate to the SettingsScreen
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => const SettingsScreen()),
         );
         break;
-      // Add more cases for additional screens if needed
     }
   }
 
