@@ -20,7 +20,6 @@ class SignInScreenState extends State<SignInScreen> {
         _passwordFocusNode.unfocus();
       },
       child: Scaffold(
-
         body: SafeArea(
           child: Stack(
             children: [

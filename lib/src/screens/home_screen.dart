@@ -2,8 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:rss_feed_reader_app/src/services/auth_service.dart';
 import 'package:rss_feed_reader_app/src/services/feeds_service.dart';
-import 'package:rss_feed_reader_app/src/widgets/app_bar.dart';
-import 'package:rss_feed_reader_app/src/widgets/nav_drawer.dart';
+import 'package:rss_feed_reader_app/src/widgets/main_scaffold.dart';
 
 class HomeScreen extends StatelessWidget {
   final AuthService _authService = AuthService();
@@ -13,9 +12,7 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: const AppBarWidget(),
-      drawer: const NavDrawer(),
+    return MainScaffold(
       body: Column(
         children: [
           ActionChip(
@@ -64,4 +61,3 @@ class HomeScreen extends StatelessWidget {
     );
   }
 }
- 
