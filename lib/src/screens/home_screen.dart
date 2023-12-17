@@ -1,12 +1,10 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:rss_feed_reader_app/src/services/auth_service.dart';
+import 'package:rss_feed_reader_app/src/models/article.dart';
 import 'package:rss_feed_reader_app/src/services/feeds_service.dart';
 import 'package:rss_feed_reader_app/src/widgets/app_bar.dart';
 import 'package:rss_feed_reader_app/src/widgets/nav_drawer.dart';
 
 class HomeScreen extends StatelessWidget {
-  final AuthService _authService = AuthService();
   final FeedsService _feedsService = FeedsService();
 
   HomeScreen({super.key});
@@ -16,52 +14,59 @@ class HomeScreen extends StatelessWidget {
     return Scaffold(
       appBar: const AppBarWidget(title: 'All Feeds'),
       drawer: const NavDrawer(),
-      body: Column(
-        children: [
-          ActionChip(
-            onPressed: () {
-              _authService.signOut();
-            },
-            label: const Text('Sign Out'),
-          ),
-          FutureBuilder<List<QueryDocumentSnapshot>>(
-            future: _feedsService.getFeeds(),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const CircularProgressIndicator();
-              } else if (snapshot.hasError) {
-                return Text('Error: ${snapshot.error}');
-              } else {
-                List<QueryDocumentSnapshot>? feeds = snapshot.data;
+      body: FutureBuilder<List<Map<String, dynamic>>>(
+        future: _feedsService.getUserFeeds(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const CircularProgressIndicator();
+          } else if (snapshot.hasError) {
+            return Text('Error: ${snapshot.error}');
+          } else {
+            List<Map<String, dynamic>>? feeds = snapshot.data;
 
-                return ListView.builder(
-                  shrinkWrap: true,
-                  itemCount: feeds?.length ?? 0,
-                  itemBuilder: (context, index) {
-                    Map<String, dynamic>? feedData =
-                        feeds?[index].data() as Map<String, dynamic>?;
-                    return ListTile(
-                      title: Text(feedData?['title'] ?? ''),
-                      subtitle: Text(feedData?['url'] ?? ''),
-                    );
+            return ListView.builder(
+              shrinkWrap: true,
+              itemCount: feeds?.length ?? 0,
+              itemBuilder: (context, index) {
+                String feedUrl = feeds?[index]['url'] ?? '';
+
+                return FutureBuilder<List<Article>>(
+                  future: _feedsService.getArticlesFromFeed(feedUrl),
+                  builder: (context, articleSnapshot) {
+                    if (articleSnapshot.connectionState ==
+                        ConnectionState.waiting) {
+                      return const CircularProgressIndicator();
+                    } else if (articleSnapshot.hasError) {
+                      return Text('Error: ${articleSnapshot.error}');
+                    } else {
+                      List<Article>? articles = articleSnapshot.data;
+
+                      return ListView.builder(
+                        shrinkWrap: true,
+                        physics:
+                            const NeverScrollableScrollPhysics(), // To prevent nested scrolling issues
+                        itemCount: articles?.length ?? 0,
+                        itemBuilder: (context, articleIndex) {
+                          Article? article = articles?[articleIndex];
+                          return Card(
+                            child: ListTile(
+                              leading: article?.imageUrl != null
+                                  ? Image.network(article!.imageUrl)
+                                  : null,
+                              title: Text(article?.title ?? ''),
+                              
+                            ),
+                          );
+                        },
+                      );
+                    }
                   },
                 );
-              }
-            },
-          ),
-          TextField(
-            decoration: InputDecoration(
-              hintText: 'Enter RSS Feed URL',
-              border: const OutlineInputBorder(),
-              suffixIcon: IconButton(
-                onPressed: () {},
-                icon: const Icon(Icons.search),
-              ),
-            ),
-          ),
-        ],
+              },
+            );
+          }
+        },
       ),
     );
   }
 }
- 

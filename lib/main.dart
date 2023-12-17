@@ -41,7 +41,7 @@ class MyApp extends StatelessWidget {
             theme: themeProvider.currentTheme,
             home: AnimatedSplashScreen(
               splash: const FlutterLogo(size: 100),
-              duration: 1000,
+              duration: 100,
               nextScreen: StreamBuilder<User?>(
                 stream: _authService.authStateChanges,
                 builder: (context, snapshot) {

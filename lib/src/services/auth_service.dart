@@ -7,6 +7,8 @@ class AuthService {
 
   Stream<User?> get authStateChanges => _auth.authStateChanges();
 
+  final userId = FirebaseAuth.instance.currentUser?.uid;
+  
   bool get isUserLoggedIn => _auth.currentUser != null;
   bool get isEmailVerified => _auth.currentUser?.emailVerified ?? false;
 
