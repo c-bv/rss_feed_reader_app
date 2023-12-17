@@ -10,7 +10,7 @@ class AuthService {
   bool get isUserLoggedIn => _auth.currentUser != null;
   bool get isEmailVerified => _auth.currentUser?.emailVerified ?? false;
 
-  Future<User?> login({required String email, required String password}) async {
+  Future<User?> signIn({required String email, required String password}) async {
     User? user;
 
     try {

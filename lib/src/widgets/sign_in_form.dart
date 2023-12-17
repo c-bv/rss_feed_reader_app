@@ -35,9 +35,8 @@ class SignInFormState extends State<SignInForm> {
     setState(() {
       _isSigningIn = true;
     });
-
     if (_signInFormKey.currentState!.validate()) {
-      await _authService.login(
+      await _authService.signIn(
         email: _emailController.text.trim(),
         password: _passwordController.text,
       );
