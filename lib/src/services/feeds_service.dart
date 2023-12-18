@@ -2,37 +2,25 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:html/parser.dart' as html_parser;
 import 'package:http/http.dart' as http;
 import 'package:rss_feed_reader_app/src/models/article.dart';
+import 'package:rss_feed_reader_app/src/models/feed_search_result.dart';
 import 'package:rss_feed_reader_app/src/services/auth_service.dart';
 import 'package:webfeed/webfeed.dart';
+import 'dart:convert';
 
 class FeedsService {
   final _firestore = FirebaseFirestore.instance;
 
-  Future<void> postFeed({required String name, required String url}) async {
-    try {
-      DocumentReference feedDocRef = _firestore.collection('feeds').doc();
-      await feedDocRef.set({
-        'name': name,
-        'url': url,
-      });
-    } catch (e) {
-      rethrow;
-    }
-  }
+ 
 
   Future<List<Map<String, dynamic>>> getUserFeeds() async {
     try {
       String? userId = AuthService().userId;
       DocumentSnapshot userDoc =
           await _firestore.collection('users').doc(userId).get();
-      List<DocumentReference> userFeedsRefs = List.from(userDoc['feeds']);
       List<Map<String, dynamic>> feeds = [];
-
-      for (DocumentReference feedRef in userFeedsRefs) {
-        DocumentSnapshot feedDoc = await feedRef.get();
-        feeds.add(feedDoc.data() as Map<String, dynamic>);
+      if (userDoc.exists) {
+        feeds = List<Map<String, dynamic>>.from(userDoc['feeds']);
       }
-
       return feeds;
     } catch (e) {
       rethrow;
@@ -59,9 +47,7 @@ class FeedsService {
           if (elements != null && elements.isNotEmpty) {
             imageUrl = elements.first.attributes['src'] ?? '';
           } else {
-            // Use placeholder if no image is found
-            imageUrl =
-                'https://via.placeholder.com/150?text=No+Image+Found';
+            imageUrl = 'https://via.placeholder.com/150?text=No+Image+Found';
           }
         }
         return Article(
@@ -75,4 +61,54 @@ class FeedsService {
       rethrow;
     }
   }
+
+  List<FeedSearchResult> parseSearchResults(String responseBody) {
+    final parsed = (jsonDecode(responseBody)['results'] as List)
+        .cast<Map<String, dynamic>>();
+    return parsed
+        .map<FeedSearchResult>((json) => FeedSearchResult.fromJson(json))
+        .toList();
+  }
+
+  Future<List<FeedSearchResult>> searchFeeds(String query) async {
+    try {
+      final response = await http.get(Uri.parse(
+          'https://cloud.feedly.com/v3/search/feeds?query=$query&count=20'));
+      return parseSearchResults(response.body);
+    } catch (e) {
+      rethrow;
+    }
+  }
+  
+  Future<void> addFeed(FeedSearchResult feedSearchResult) async {
+    try {
+      String? userId = AuthService().userId;
+      DocumentSnapshot userDoc = await _firestore.collection('users').doc(userId).get();
+     
+      final userFeeds = userDoc.reference.collection('feeds');
+
+      final feed = await http.get(Uri.parse(feedSearchResult.feedUrl));
+      final rssFeed = RssFeed.parse(feed.body);
+
+      await userFeeds.add({
+        'title': rssFeed.title,
+        'iconUrl': feedSearchResult.iconUrl,
+        'feedUrl': feedSearchResult.feedUrl,
+        'items': rssFeed.items!.map((item) {
+          return {
+            'title': item.title,
+            'link': item.link,
+            'value': item.content?.value ?? '',
+            'imageUrl': item.content?.images.first ?? '',
+            'published': item.pubDate?.toIso8601String() ?? '',
+            'read': false,
+          };
+        }).toList(),
+      });
+
+    } catch (e) {
+      rethrow;
+    }
+  }
+
 }

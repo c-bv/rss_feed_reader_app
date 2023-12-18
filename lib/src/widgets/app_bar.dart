@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:rss_feed_reader_app/src/screens/add_feed_screen.dart';
 
 class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
   final String title;
@@ -46,10 +47,10 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
         ),
       ),
       const PopupMenuItem<String>(
-        value: 'help',
+        value: 'add_feed',
         child: ListTile(
-          leading: Icon(Icons.help),
-          title: Text('Help'),
+          leading: Icon(Icons.add),
+          title: Text('Add Feed'),
         ),
       ),
     ];
@@ -61,7 +62,13 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
         break;
       case 'profile':
         break;
-      case 'help':
+      case 'add_feed':
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => const AddFeedScreen(),
+          ),
+        );
+
         break;
     }
   }

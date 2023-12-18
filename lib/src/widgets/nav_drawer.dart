@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:rss_feed_reader_app/src/providers/nav_provider.dart';
 import 'package:rss_feed_reader_app/src/screens/home_screen.dart';
-import 'package:rss_feed_reader_app/src/screens/register_screen.dart';
-import 'package:rss_feed_reader_app/src/screens/settings_screen.dart';
+import 'package:rss_feed_reader_app/src/services/feeds_service.dart';
 
 class Destination {
   const Destination(this.label, this.icon, this.selectedIcon);
@@ -15,9 +14,8 @@ class Destination {
 
 const List<Destination> destinations = <Destination>[
   Destination('All feeds', Icon(Icons.home_outlined), Icon(Icons.home)),
-  Destination(
-      'Saved articles', Icon(Icons.bookmark_border_outlined), Icon(Icons.bookmark)),
-  Destination('Settings', Icon(Icons.settings_outlined), Icon(Icons.settings)),
+  Destination('Saved articles', Icon(Icons.bookmark_border_outlined),
+      Icon(Icons.bookmark)),
 ];
 
 class NavDrawer extends StatefulWidget {
@@ -30,6 +28,25 @@ class NavDrawer extends StatefulWidget {
 class _NavDrawerState extends State<NavDrawer> {
   int screenIndex = 0;
   late bool showNavigationDrawer;
+  List<Map<String, dynamic>> userFeeds = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchUserFeeds();
+  }
+
+  Future<void> _fetchUserFeeds() async {
+    try {
+      var feeds = await FeedsService().getUserFeeds();
+      print(feeds);
+      setState(() {
+        userFeeds = feeds;
+      });
+    } catch (e) {
+      // Handle exception or show error message
+    }
+  }
 
   void handleScreenChanged(int selectedScreen, NavProvider provider) {
     provider.setScreenIndex(selectedScreen);
@@ -39,19 +56,13 @@ class _NavDrawerState extends State<NavDrawer> {
       case 0:
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => HomeScreen()),
+          MaterialPageRoute(builder: (context) => const HomeScreen()),
         );
         break;
       case 1:
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const RegisterScreen()),
-        );
-        break;
-      case 2:
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const SettingsScreen()),
+          MaterialPageRoute(builder: (context) => const HomeScreen()),
         );
         break;
     }
@@ -72,12 +83,8 @@ class _NavDrawerState extends State<NavDrawer> {
               handleScreenChanged(selectedScreen, provider),
           selectedIndex: provider.selectedIndex,
           children: <Widget>[
-            Padding(
-              padding: const EdgeInsets.fromLTRB(28, 16, 16, 10),
-              child: Text(
-                'Header',
-                style: Theme.of(context).textTheme.titleSmall,
-              ),
+            const Padding(
+              padding: EdgeInsets.fromLTRB(28, 16, 16, 10),
             ),
             ...destinations.map(
               (Destination destination) {
@@ -89,8 +96,17 @@ class _NavDrawerState extends State<NavDrawer> {
               },
             ),
             const Padding(
-              padding: EdgeInsets.fromLTRB(28, 16, 28, 10),
+              padding: EdgeInsets.symmetric(horizontal: 10),
               child: Divider(),
+            ),
+            ...userFeeds.map(
+              (feed) {
+                return NavigationDrawerDestination(
+                  label: Text(feed['title']),
+                  icon: const Icon(Icons.rss_feed_outlined),
+                  selectedIcon: const Icon(Icons.rss_feed),
+                );
+              },
             ),
           ],
         );

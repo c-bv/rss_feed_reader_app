@@ -46,7 +46,6 @@ class CustomFormField extends StatelessWidget {
       textCapitalization:
           isCapitalized ? TextCapitalization.words : TextCapitalization.none,
       textInputAction: _inputAction,
- 
       validator: (value) => _validator(value!),
       decoration: InputDecoration(
         labelText: isLabelEnabled ? _label : null,
@@ -55,7 +54,7 @@ class CustomFormField extends StatelessWidget {
           fontWeight: FontWeight.bold,
         ),
         focusedBorder: OutlineInputBorder(
-          borderSide:   BorderSide(
+          borderSide: BorderSide(
             color: theme.colorScheme.primary,
             width: 2,
           ),
