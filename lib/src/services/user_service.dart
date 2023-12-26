@@ -12,7 +12,6 @@ class UserService {
       await userDocRef.set({
         'email': email,
         'displayName': displayName,
-        'feeds': [],
         'favorites': [],
         'createdAt': FieldValue.serverTimestamp(),
       });
