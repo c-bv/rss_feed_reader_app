@@ -18,6 +18,7 @@ class ArticleCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
+          // Image
           ClipRRect(
             borderRadius:
                 const BorderRadius.vertical(top: Radius.circular(10.0)),
@@ -37,43 +38,68 @@ class ArticleCard extends StatelessWidget {
                     ),
             ),
           ),
+          // Title and Description
           Padding(
             padding: const EdgeInsets.all(8.0),
-            child: Row(
+            child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                article.iconUrl != null
-                    ? CircleAvatar(
-                        backgroundImage: NetworkImage(article.iconUrl!),
-                        backgroundColor: Colors.grey[200],
-                        radius: 10.0,
-                      )
-                    : const CircleAvatar(
-                        backgroundColor: Colors.grey,
-                        radius: 10.0,
-                        child: Icon(Icons.rss_feed,
-                            color: Colors.white, size: 14.0),
-                      ),
-                const SizedBox(width: 8.0), 
-                Expanded(
-                  child: Text(
-                    article. title!,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16.0,
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
+                Text(
+                  article.title ?? 'No Title',
+                  style: const TextStyle(
+                    fontSize: 16.0,
+                    fontWeight: FontWeight.w600,
                   ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 2.0),
+                Text(
+                  article.description ?? 'No Description',
+                  style: const TextStyle(
+                    fontSize: 14.0,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ],
             ),
           ),
+          // Feed Title and Date
           Padding(
-            padding: const EdgeInsets.only(left: 8.0, bottom: 8.0),
-            child: Text(
-              DateFormat('MMM d, y').format(DateTime.parse(article.pubDate!)),
-              style: const TextStyle(color: Colors.grey),
+            padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                // Icon and Feed Title
+                Row(
+                  children: <Widget>[
+                    CircleAvatar(
+                      backgroundColor: Colors.grey[200],
+                      radius: 10.0,
+                      child: article.iconUrl != null
+                          ? Image.network(article.iconUrl!, fit: BoxFit.cover)
+                          : const Icon(Icons.rss_feed,
+                              color: Colors.white, size: 14.0),
+                    ),
+                    const SizedBox(width: 8.0),
+                    Text(
+                      article.feedTitle ?? 'Unknown Feed',
+                      style: const TextStyle(
+                          fontSize: 14.0, fontWeight: FontWeight.w600),
+                    ),
+                  ],
+                ),
+                // Publication Date
+                Text(
+                  DateFormat('MMM d, y')
+                      .format(DateTime.parse(article.pubDate!)),
+                  style: const TextStyle(
+                    fontSize: 14.0,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
             ),
           ),
         ],

@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:html/parser.dart' show parse;
 import 'package:http/http.dart' as http;
 import 'package:rss_feed_reader_app/src/models/article.dart';
 import 'package:rss_feed_reader_app/src/models/feed.dart';
@@ -45,6 +46,7 @@ class FeedsService {
       var feedArticles = feed['items'].map<Article>((article) {
         return Article(
           title: article['title'],
+          feedTitle: feed['title'],
           link: article['link'],
           description: article['description'],
           imageUrl: article['imageUrl'],
@@ -61,9 +63,7 @@ class FeedsService {
   List<Feed> parseSearchResults(String responseBody) {
     final parsed = (jsonDecode(responseBody)['results'] as List)
         .cast<Map<String, dynamic>>();
-    return parsed
-        .map<Feed>((json) => Feed.fromJson(json))
-        .toList();
+    return parsed.map<Feed>((json) => Feed.fromJson(json)).toList();
   }
 
   Future<List<Feed>> searchFeeds(String query) async {
@@ -81,9 +81,8 @@ class FeedsService {
       var userFeeds =
           _firestore.collection('users').doc(_userId).collection('feeds');
 
-      var existingFeed = await userFeeds
-          .where('link', isEqualTo: feedSearchResult.link)
-          .get();
+      var existingFeed =
+          await userFeeds.where('link', isEqualTo: feedSearchResult.link).get();
 
       if (existingFeed.docs.isNotEmpty) {
         throw Exception('You have already subscribed to this feed');
@@ -105,6 +104,7 @@ class FeedsService {
         'items': rssFeed.items!.map((item) {
           return {
             'title': item.title,
+            'description': parse(item.description ?? '').documentElement?.text,
             'content': item.content?.value ?? '',
             'link': item.link,
             'imageUrl': item.content?.images.first ?? '',
