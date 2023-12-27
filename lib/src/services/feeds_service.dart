@@ -18,17 +18,14 @@ class FeedsService {
           _firestore.collection('users').doc(_userId).collection('feeds');
 
       var feeds = await userFeeds.get(const GetOptions(source: Source.cache));
-
       if (feeds.docs.isEmpty) {
         feeds = await userFeeds.get();
       }
 
       return feeds.docs.map((feed) {
         return {
-          'id': feed.id,
           'title': feed['title'],
           'iconUrl': feed['iconUrl'],
-          'feedUrl': feed['feedUrl'],
         };
       }).toList();
     } catch (e) {
