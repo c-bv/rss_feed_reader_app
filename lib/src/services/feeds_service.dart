@@ -10,14 +10,12 @@ import 'package:webfeed/webfeed.dart';
 
 class FeedsService {
   final _firestore = FirebaseFirestore.instance;
+  final _userId = AuthService().userId;
 
   Future<List<Map<String, dynamic>>> getUserFeeds() async {
     try {
-      String? userId = AuthService().userId;
-      var userFeeds = FirebaseFirestore.instance
-          .collection('users')
-          .doc(userId)
-          .collection('feeds');
+      var userFeeds =
+          _firestore.collection('users').doc(_userId).collection('feeds');
 
       var feeds = await userFeeds.get(const GetOptions(source: Source.cache));
 
@@ -38,13 +36,27 @@ class FeedsService {
     }
   }
 
+  Future<List<Article>> getAllArticles() async {
+    var userFeeds =
+        _firestore.collection('users').doc(_userId).collection('feeds');
+    var feeds = await userFeeds.get();
+    List<Article> allArticles = [];
+
+    for (var feed in feeds.docs) {
+      var articles = await getArticlesFromFeed(feed['feedUrl']);
+      allArticles.addAll(articles);
+    }
+
+    return allArticles;
+  }
+
   Future<List<Article>> getArticlesFromFeed(String feedUrl) async {
     try {
       final response = await http.get(Uri.parse(feedUrl));
       final rssFeed = RssFeed.parse(response.body);
 
       return rssFeed.items!.map((rssItem) {
-        String imageUrl = '';
+        String? imageUrl;
 
         if (rssItem.enclosure != null &&
             rssItem.enclosure!.type?.startsWith('image/') == true) {
@@ -57,14 +69,16 @@ class FeedsService {
           if (elements != null && elements.isNotEmpty) {
             imageUrl = elements.first.attributes['src'] ?? '';
           } else {
-            imageUrl = 'https://via.placeholder.com/150?text=No+Image+Found';
+            imageUrl = null;
           }
         }
         return Article(
           title: rssItem.title ?? 'No Title',
           link: rssItem.link ?? '#',
-          description: rssItem.description ?? 'No Description',
+          value: rssItem.description ?? 'No Description',
           imageUrl: imageUrl,
+          pubDate: rssItem.pubDate?.toIso8601String() ?? '',
+          read: false,
         );
       }).toList();
     } catch (e) {
@@ -92,12 +106,8 @@ class FeedsService {
 
   Future<void> addFeed(FeedSearchResult feedSearchResult) async {
     try {
-      String? userId = AuthService().userId;
-
-      var userFeeds = FirebaseFirestore.instance
-          .collection('users')
-          .doc(userId)
-          .collection('feeds');
+      var userFeeds =
+          _firestore.collection('users').doc(_userId).collection('feeds');
 
       var existingFeed = await userFeeds
           .where('feedUrl', isEqualTo: feedSearchResult.feedUrl)
@@ -126,7 +136,7 @@ class FeedsService {
             'link': item.link,
             'value': item.content?.value ?? '',
             'imageUrl': item.content?.images.first ?? '',
-            'published': item.pubDate?.toIso8601String() ?? '',
+            'pubDate': item.pubDate?.toIso8601String() ?? '',
             'read': false,
           };
         }).toList(),

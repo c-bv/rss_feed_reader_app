@@ -1,7 +1,16 @@
 class Article {
   final String title;
   final String link;
-  final String description;
-  final String imageUrl;
-  Article({required this.title, required this.link, required this.description, required this.imageUrl});
+  final String value;
+  final String? imageUrl;
+  final String pubDate;
+  final bool read;
+
+  Article(
+      {required this.title,
+      required this.link,
+      required this.value,
+      this.imageUrl,
+      required this.pubDate,
+      required this.read});
 }
