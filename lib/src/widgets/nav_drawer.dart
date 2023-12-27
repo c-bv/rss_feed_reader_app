@@ -104,14 +104,18 @@ class _NavDrawerState extends State<NavDrawer> {
                 return NavigationDrawerDestination(
                   label: Text(feed['title']),
                   icon: feed['iconUrl'] != null
-                      ? CachedNetworkImage(
-                          imageUrl: feed['iconUrl'],
-                          placeholder: (context, url) =>
-                              const CircularProgressIndicator(),
-                          errorWidget: (context, url, error) =>
-                              const Icon(Icons.error),
+                      ? CircleAvatar(
+                          backgroundImage:
+                              CachedNetworkImageProvider(feed['iconUrl']),
+                          backgroundColor: Colors.grey[200],
+                          radius: 10.0,
                         )
-                      : const Icon(Icons.rss_feed_outlined),
+                      : const CircleAvatar(
+                          backgroundColor: Colors.grey,
+                          radius: 10.0,
+                          child: Icon(Icons.rss_feed,
+                              color: Colors.white, size: 14.0),
+                        ),
                 );
               },
             ),

@@ -1,16 +1,37 @@
 class Article {
-  final String title;
-  final String link;
-  final String value;
   final String? imageUrl;
-  final String pubDate;
-  final bool read;
+  final String? iconUrl;
+  final String? content;
+  final String? title;
+  final String? description;
+  final String? link;
+  final List<String>? categories;
+  final String? guid;
+  final String? pubDate;
+  final String? author;
+  final String? comments;
+  final Map<String, dynamic>? source;
+  final Map<String, dynamic>? media;
+  final Map<String, dynamic>? enclosure;
+  final Map<String, dynamic>? dc;
+  final bool? read;
 
-  Article(
-      {required this.title,
-      required this.link,
-      required this.value,
-      this.imageUrl,
-      required this.pubDate,
-      required this.read});
+  Article({
+    this.imageUrl,
+    this.iconUrl,
+    this.content,
+    this.title,
+    this.description,
+    this.link,
+    this.categories,
+    this.guid,
+    this.pubDate,
+    this.author,
+    this.comments,
+    this.source,
+    this.media,
+    this.enclosure,
+    this.dc,
+    this.read,
+  });
 }

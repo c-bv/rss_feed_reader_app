@@ -1,10 +1,9 @@
 import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:html/parser.dart' as html_parser;
 import 'package:http/http.dart' as http;
 import 'package:rss_feed_reader_app/src/models/article.dart';
-import 'package:rss_feed_reader_app/src/models/feed_search_result.dart';
+import 'package:rss_feed_reader_app/src/models/feed.dart';
 import 'package:rss_feed_reader_app/src/services/auth_service.dart';
 import 'package:webfeed/webfeed.dart';
 
@@ -43,58 +42,31 @@ class FeedsService {
     List<Article> allArticles = [];
 
     for (var feed in feeds.docs) {
-      var articles = await getArticlesFromFeed(feed['feedUrl']);
-      allArticles.addAll(articles);
+      var feedArticles = feed['items'].map<Article>((article) {
+        return Article(
+          title: article['title'],
+          link: article['link'],
+          description: article['description'],
+          imageUrl: article['imageUrl'],
+          iconUrl: feed['iconUrl'],
+          pubDate: article['pubDate'],
+          read: article['read'],
+        );
+      }).toList();
+      allArticles.addAll(feedArticles);
     }
-
     return allArticles;
   }
 
-  Future<List<Article>> getArticlesFromFeed(String feedUrl) async {
-    try {
-      final response = await http.get(Uri.parse(feedUrl));
-      final rssFeed = RssFeed.parse(response.body);
-
-      return rssFeed.items!.map((rssItem) {
-        String? imageUrl;
-
-        if (rssItem.enclosure != null &&
-            rssItem.enclosure!.type?.startsWith('image/') == true) {
-          imageUrl = rssItem.enclosure!.url ?? '';
-        } else {
-          var document = rssItem.content?.value != null
-              ? html_parser.parse(rssItem.content!.value)
-              : null;
-          var elements = document?.getElementsByTagName('img');
-          if (elements != null && elements.isNotEmpty) {
-            imageUrl = elements.first.attributes['src'] ?? '';
-          } else {
-            imageUrl = null;
-          }
-        }
-        return Article(
-          title: rssItem.title ?? 'No Title',
-          link: rssItem.link ?? '#',
-          value: rssItem.description ?? 'No Description',
-          imageUrl: imageUrl,
-          pubDate: rssItem.pubDate?.toIso8601String() ?? '',
-          read: false,
-        );
-      }).toList();
-    } catch (e) {
-      rethrow;
-    }
-  }
-
-  List<FeedSearchResult> parseSearchResults(String responseBody) {
+  List<Feed> parseSearchResults(String responseBody) {
     final parsed = (jsonDecode(responseBody)['results'] as List)
         .cast<Map<String, dynamic>>();
     return parsed
-        .map<FeedSearchResult>((json) => FeedSearchResult.fromJson(json))
+        .map<Feed>((json) => Feed.fromJson(json))
         .toList();
   }
 
-  Future<List<FeedSearchResult>> searchFeeds(String query) async {
+  Future<List<Feed>> searchFeeds(String query) async {
     try {
       final response = await http.get(Uri.parse(
           'https://cloud.feedly.com/v3/search/feeds?query=$query&count=20'));
@@ -104,13 +76,13 @@ class FeedsService {
     }
   }
 
-  Future<void> addFeed(FeedSearchResult feedSearchResult) async {
+  Future<void> addFeed(Feed feedSearchResult) async {
     try {
       var userFeeds =
           _firestore.collection('users').doc(_userId).collection('feeds');
 
       var existingFeed = await userFeeds
-          .where('feedUrl', isEqualTo: feedSearchResult.feedUrl)
+          .where('link', isEqualTo: feedSearchResult.link)
           .get();
 
       if (existingFeed.docs.isNotEmpty) {
@@ -119,7 +91,7 @@ class FeedsService {
 
       http.Response feedResponse;
       try {
-        feedResponse = await http.get(Uri.parse(feedSearchResult.feedUrl));
+        feedResponse = await http.get(Uri.parse(feedSearchResult.link!));
       } catch (e) {
         throw Exception(
             'Network error: Unable to fetch feed. Please try again when online.');
@@ -129,12 +101,12 @@ class FeedsService {
       await userFeeds.add({
         'title': rssFeed.title,
         'iconUrl': feedSearchResult.iconUrl,
-        'feedUrl': feedSearchResult.feedUrl,
+        'link': feedSearchResult.link,
         'items': rssFeed.items!.map((item) {
           return {
             'title': item.title,
+            'content': item.content?.value ?? '',
             'link': item.link,
-            'value': item.content?.value ?? '',
             'imageUrl': item.content?.images.first ?? '',
             'pubDate': item.pubDate?.toIso8601String() ?? '',
             'read': false,

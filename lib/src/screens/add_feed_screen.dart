@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:rss_feed_reader_app/src/models/feed_search_result.dart';
+import 'package:rss_feed_reader_app/src/models/feed.dart';
 import 'package:rss_feed_reader_app/src/services/feeds_service.dart';
 
 class AddFeedScreen extends StatefulWidget {
@@ -10,7 +10,7 @@ class AddFeedScreen extends StatefulWidget {
 }
 
 class _AddFeedScreenState extends State<AddFeedScreen> {
-  List<FeedSearchResult> feedSearchResults = [];
+  List<Feed> feedSearchResults = [];
   final TextEditingController _controller = TextEditingController();
 
   void _handleSearchFeed(String query) async {
@@ -39,7 +39,7 @@ class _AddFeedScreenState extends State<AddFeedScreen> {
     });
   }
 
-  void _handleAddFeed(FeedSearchResult result) async {
+  void _handleAddFeed(Feed result) async {
     final scaffoldMessenger = ScaffoldMessenger.of(context);
 
     try {
@@ -106,7 +106,7 @@ class _AddFeedScreenState extends State<AddFeedScreen> {
                             )
                           : const Icon(Icons.rss_feed),
                     ),
-                    title: Text(result.title),
+                    title: Text(result.title!),
                     subtitle: Text(
                       result.description ?? '',
                       maxLines: 2,

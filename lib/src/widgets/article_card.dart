@@ -39,20 +39,40 @@ class ArticleCard extends StatelessWidget {
           ),
           Padding(
             padding: const EdgeInsets.all(8.0),
-            child: Text(
-              article.title,
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 16.0,
-              ),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                article.iconUrl != null
+                    ? CircleAvatar(
+                        backgroundImage: NetworkImage(article.iconUrl!),
+                        backgroundColor: Colors.grey[200],
+                        radius: 10.0,
+                      )
+                    : const CircleAvatar(
+                        backgroundColor: Colors.grey,
+                        radius: 10.0,
+                        child: Icon(Icons.rss_feed,
+                            color: Colors.white, size: 14.0),
+                      ),
+                const SizedBox(width: 8.0), 
+                Expanded(
+                  child: Text(
+                    article. title!,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16.0,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
             ),
           ),
           Padding(
             padding: const EdgeInsets.only(left: 8.0, bottom: 8.0),
             child: Text(
-              DateFormat('MMM d, y').format(DateTime.parse(article.pubDate)),
+              DateFormat('MMM d, y').format(DateTime.parse(article.pubDate!)),
               style: const TextStyle(color: Colors.grey),
             ),
           ),
