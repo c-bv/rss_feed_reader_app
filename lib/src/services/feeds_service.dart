@@ -50,7 +50,6 @@ class FeedsService {
             rssItem.enclosure!.type?.startsWith('image/') == true) {
           imageUrl = rssItem.enclosure!.url ?? '';
         } else {
-          // Parse the content for the first image
           var document = rssItem.content?.value != null
               ? html_parser.parse(rssItem.content!.value)
               : null;
@@ -94,11 +93,13 @@ class FeedsService {
   Future<void> addFeed(FeedSearchResult feedSearchResult) async {
     try {
       String? userId = AuthService().userId;
-      DocumentSnapshot userDoc =
-          await _firestore.collection('users').doc(userId).get();
 
-      final userFeeds = userDoc.reference.collection('feeds');
-      final existingFeed = await userFeeds
+      var userFeeds = FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId)
+          .collection('feeds');
+
+      var existingFeed = await userFeeds
           .where('feedUrl', isEqualTo: feedSearchResult.feedUrl)
           .get();
 
@@ -106,8 +107,14 @@ class FeedsService {
         throw Exception('You have already subscribed to this feed');
       }
 
-      final feed = await http.get(Uri.parse(feedSearchResult.feedUrl));
-      final rssFeed = RssFeed.parse(feed.body);
+      http.Response feedResponse;
+      try {
+        feedResponse = await http.get(Uri.parse(feedSearchResult.feedUrl));
+      } catch (e) {
+        throw Exception(
+            'Network error: Unable to fetch feed. Please try again when online.');
+      }
+      final rssFeed = RssFeed.parse(feedResponse.body);
 
       await userFeeds.add({
         'title': rssFeed.title,
