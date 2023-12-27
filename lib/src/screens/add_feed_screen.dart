@@ -17,7 +17,6 @@ class _AddFeedScreenState extends State<AddFeedScreen> {
     if (query.isNotEmpty) {
       try {
         var feeds = await FeedsService().searchFeeds(query);
-        print(feeds);
         setState(() {
           feedSearchResults = feeds;
         });
@@ -38,6 +37,27 @@ class _AddFeedScreenState extends State<AddFeedScreen> {
     setState(() {
       feedSearchResults = [];
     });
+  }
+
+  void _handleAddFeed(FeedSearchResult result) async {
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
+
+    try {
+      await FeedsService().addFeed(result);
+
+      scaffoldMessenger.showSnackBar(
+        const SnackBar(
+          content: Text('Feed added successfully'),
+        ),
+      );
+    } catch (e) {
+      print(e);
+      scaffoldMessenger.showSnackBar(
+        SnackBar(
+          content: Text(e.toString()),
+        ),
+      );
+    }
   }
 
   @override
@@ -75,22 +95,7 @@ class _AddFeedScreenState extends State<AddFeedScreen> {
                 final result = feedSearchResults[index];
                 return Card(
                   child: ListTile(
-                    onTap: () async {
-                      try {
-                        await FeedsService().addFeed(result);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Feed added successfully'),
-                          ),
-                        );
-                      } catch (e) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(e.toString()),
-                          ),
-                        );
-                      }
-                    },
+                    onTap: () => _handleAddFeed(result),
                     leading: SizedBox(
                       width: 25,
                       height: 25,

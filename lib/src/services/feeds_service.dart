@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:html/parser.dart' as html_parser;
 import 'package:http/http.dart' as http;
@@ -5,23 +7,32 @@ import 'package:rss_feed_reader_app/src/models/article.dart';
 import 'package:rss_feed_reader_app/src/models/feed_search_result.dart';
 import 'package:rss_feed_reader_app/src/services/auth_service.dart';
 import 'package:webfeed/webfeed.dart';
-import 'dart:convert';
 
 class FeedsService {
   final _firestore = FirebaseFirestore.instance;
 
- 
-
   Future<List<Map<String, dynamic>>> getUserFeeds() async {
     try {
       String? userId = AuthService().userId;
-      DocumentSnapshot userDoc =
-          await _firestore.collection('users').doc(userId).get();
-      List<Map<String, dynamic>> feeds = [];
-      if (userDoc.exists) {
-        feeds = List<Map<String, dynamic>>.from(userDoc['feeds']);
+      var userFeeds = FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId)
+          .collection('feeds');
+
+      var feeds = await userFeeds.get(const GetOptions(source: Source.cache));
+
+      if (feeds.docs.isEmpty) {
+        feeds = await userFeeds.get();
       }
-      return feeds;
+
+      return feeds.docs.map((feed) {
+        return {
+          'id': feed.id,
+          'title': feed['title'],
+          'iconUrl': feed['iconUrl'],
+          'feedUrl': feed['feedUrl'],
+        };
+      }).toList();
     } catch (e) {
       rethrow;
     }
@@ -79,13 +90,21 @@ class FeedsService {
       rethrow;
     }
   }
-  
+
   Future<void> addFeed(FeedSearchResult feedSearchResult) async {
     try {
       String? userId = AuthService().userId;
-      DocumentSnapshot userDoc = await _firestore.collection('users').doc(userId).get();
-     
+      DocumentSnapshot userDoc =
+          await _firestore.collection('users').doc(userId).get();
+
       final userFeeds = userDoc.reference.collection('feeds');
+      final existingFeed = await userFeeds
+          .where('feedUrl', isEqualTo: feedSearchResult.feedUrl)
+          .get();
+
+      if (existingFeed.docs.isNotEmpty) {
+        throw Exception('You have already subscribed to this feed');
+      }
 
       final feed = await http.get(Uri.parse(feedSearchResult.feedUrl));
       final rssFeed = RssFeed.parse(feed.body);
@@ -105,10 +124,8 @@ class FeedsService {
           };
         }).toList(),
       });
-
     } catch (e) {
       rethrow;
     }
   }
-
 }

@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:rss_feed_reader_app/src/providers/nav_provider.dart';
@@ -103,8 +104,14 @@ class _NavDrawerState extends State<NavDrawer> {
                 return NavigationDrawerDestination(
                   label: Text(feed['title']),
                   icon: feed['iconUrl'] != null
-                      ? Image.network(feed['iconUrl'])
-                      : const Icon(Icons.rss_feed_outlined)
+                      ? CachedNetworkImage(
+                          imageUrl: feed['iconUrl'],
+                          placeholder: (context, url) =>
+                              const CircularProgressIndicator(),
+                          errorWidget: (context, url, error) =>
+                              const Icon(Icons.error),
+                        )
+                      : const Icon(Icons.rss_feed_outlined),
                 );
               },
             ),
