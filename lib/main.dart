@@ -52,7 +52,7 @@ class MyApp extends StatelessWidget {
                   } else {
                     if (_authService.isUserLoggedIn &&
                         _authService.isEmailVerified) {
-                      return HomeScreen();
+                      return const HomeScreen();
                     } else {
                       return const SignInScreen();
                     }

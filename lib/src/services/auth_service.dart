@@ -45,16 +45,12 @@ class AuthService {
         password: password,
       );
       await userCredential.user!.updateDisplayName(displayName);
-      print('1');
       await userCredential.user!.sendEmailVerification();
-      print('2');
-
       await _userService.createUserDocument(
         uid: userCredential.user!.uid,
         email: email,
         displayName: displayName,
       );
-      print('3');
 
       user = userCredential.user;
 

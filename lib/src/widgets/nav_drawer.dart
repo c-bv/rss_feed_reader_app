@@ -39,7 +39,6 @@ class _NavDrawerState extends State<NavDrawer> {
   Future<void> _fetchUserFeeds() async {
     try {
       var feeds = await FeedsService().getUserFeeds();
-      print(feeds);
       setState(() {
         userFeeds = feeds;
       });
@@ -103,8 +102,9 @@ class _NavDrawerState extends State<NavDrawer> {
               (feed) {
                 return NavigationDrawerDestination(
                   label: Text(feed['title']),
-                  icon: const Icon(Icons.rss_feed_outlined),
-                  selectedIcon: const Icon(Icons.rss_feed),
+                  icon: feed['iconUrl'] != null
+                      ? Image.network(feed['iconUrl'])
+                      : const Icon(Icons.rss_feed_outlined)
                 );
               },
             ),
