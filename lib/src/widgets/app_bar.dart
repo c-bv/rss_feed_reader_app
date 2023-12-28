@@ -68,7 +68,6 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
             builder: (context) => const AddFeedScreen(),
           ),
         );
-
         break;
     }
   }

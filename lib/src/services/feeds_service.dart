@@ -46,6 +46,8 @@ class FeedsService {
           feedTitle: feed['title'],
           link: article['link'],
           description: article['description'],
+          content: article['content'],
+          author: article['author'],
           imageUrl: article['imageUrl'],
           iconUrl: feed['iconUrl'],
           pubDate: article['pubDate'],
@@ -93,7 +95,6 @@ class FeedsService {
             'Network error: Unable to fetch feed. Please try again when online.');
       }
       final rssFeed = RssFeed.parse(feedResponse.body);
-
       await userFeeds.add({
         'title': rssFeed.title,
         'iconUrl': feedSearchResult.iconUrl,
@@ -102,10 +103,11 @@ class FeedsService {
           return {
             'title': item.title,
             'description': parse(item.description ?? '').documentElement?.text,
-            'content': item.content?.value ?? '',
+            'content': item.content?.value,
+            'author': item.dc?.creator,
             'link': item.link,
-            'imageUrl': item.content?.images.first ?? '',
-            'pubDate': item.pubDate?.toIso8601String() ?? '',
+            'imageUrl': item.content?.images.first,
+            'pubDate': item.pubDate?.toIso8601String(),
             'read': false,
           };
         }).toList(),
