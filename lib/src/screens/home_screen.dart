@@ -18,7 +18,13 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    _articles = FeedsService().getAllArticles();
+    _articles = _loadSortedArticles();
+  }
+
+  Future<List<Article>> _loadSortedArticles() async {
+    var articles = await FeedsService().getAllArticles();
+    articles.sort((a, b) => b.pubDate!.compareTo(a.pubDate!));
+    return articles;
   }
 
   @override
