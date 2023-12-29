@@ -115,11 +115,11 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
                   ),
                   const SizedBox(height: 10),
                   Html(
-                    data: widget.article.content!,
+                    data: widget.article.content ?? widget.article.description,
                     onLinkTap: (url, _, __) {
                       _launchURL(url);
                     },
-                  ),
+                  )
                 ],
               ),
             ],

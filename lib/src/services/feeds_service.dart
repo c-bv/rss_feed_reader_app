@@ -1,12 +1,12 @@
 import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:html/parser.dart' show parse;
 import 'package:http/http.dart' as http;
 import 'package:rss_feed_reader_app/src/models/article.dart';
 import 'package:rss_feed_reader_app/src/models/feed.dart';
 import 'package:rss_feed_reader_app/src/services/auth_service.dart';
 import 'package:webfeed/webfeed.dart';
+import 'package:xml/xml.dart' as xml;
 
 class FeedsService {
   final _firestore = FirebaseFirestore.instance;
@@ -75,6 +75,23 @@ class FeedsService {
     }
   }
 
+  Future<String> detectFeedType(String xmlString) async {
+    try {
+      var document = xml.XmlDocument.parse(xmlString);
+      var root = document.rootElement;
+
+      if (root.name.local == 'rss') {
+        return 'RSS';
+      } else if (root.name.local == 'feed') {
+        return 'Atom';
+      } else {
+        throw Exception('Unknown feed type');
+      }
+    } catch (e) {
+      rethrow;
+    }
+  }
+
   Future<void> addFeed(Feed feedSearchResult) async {
     try {
       var userFeeds =
@@ -94,15 +111,17 @@ class FeedsService {
         throw Exception(
             'Network error: Unable to fetch feed. Please try again when online.');
       }
-      final rssFeed = RssFeed.parse(feedResponse.body);
-      await userFeeds.add({
-        'title': rssFeed.title,
-        'iconUrl': feedSearchResult.iconUrl,
-        'link': feedSearchResult.link,
-        'items': rssFeed.items!.map((item) {
+
+      final feedType = await detectFeedType(feedResponse.body);
+
+      List<Map<String, dynamic>> items;
+
+      if (feedType == 'RSS') {
+        var rssFeed = RssFeed.parse(feedResponse.body);
+        items = rssFeed.items!.map((item) {
           return {
             'title': item.title,
-            'description': parse(item.description ?? '').documentElement?.text,
+            'description': item.description,
             'content': item.content?.value,
             'author': item.dc?.creator,
             'link': item.link,
@@ -110,7 +129,30 @@ class FeedsService {
             'pubDate': item.pubDate?.toIso8601String(),
             'read': false,
           };
-        }).toList(),
+        }).toList();
+      } else if (feedType == 'Atom') {
+        var atomFeed = AtomFeed.parse(feedResponse.body);
+        items = atomFeed.items!.map((item) {
+          return {
+            'title': item.title,
+            'description': item.summary,
+            'content': item.content,
+            'author': item.authors?.map((a) => a.name).join(', '),
+            'link': item.links?.first.href,
+            'imageUrl':
+                item.links?.firstWhere((l) => l.rel == 'enclosure').href,
+            'pubDate': item.updated?.toIso8601String(),
+            'read': false,
+          };
+        }).toList();
+      } else {
+        throw Exception('Unsupported feed type');
+      }
+      await userFeeds.add({
+        'title': feedSearchResult.title,
+        'iconUrl': feedSearchResult.iconUrl,
+        'link': feedSearchResult.link,
+        'items': items,
       });
     } catch (e) {
       rethrow;

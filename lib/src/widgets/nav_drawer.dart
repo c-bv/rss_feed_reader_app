@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:rss_feed_reader_app/src/providers/nav_provider.dart';
@@ -101,12 +102,28 @@ class _NavDrawerState extends State<NavDrawer> {
             ...userFeeds.map(
               (feed) {
                 return NavigationDrawerDestination(
-                  label: Text(feed['title']),
+                  label: Flexible(
+                    child: Text(
+                      feed['title'],
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
                   icon: CircleAvatar(
                     backgroundColor: Colors.grey[200],
                     radius: 10.0,
                     child: feed['iconUrl'] != null
-                        ? Image.network(feed['iconUrl'], fit: BoxFit.cover)
+                        ? ClipOval(
+                            child: CachedNetworkImage(
+                              imageUrl: feed['iconUrl'],
+                              fit: BoxFit.cover,
+                              placeholder: (context, url) =>
+                                  const CircularProgressIndicator(),
+                              errorWidget: (context, url, error) => const Icon(
+                                  Icons.rss_feed,
+                                  color: Colors.white,
+                                  size: 14.0),
+                            ),
+                          )
                         : const Icon(Icons.rss_feed,
                             color: Colors.white, size: 14.0),
                   ),
