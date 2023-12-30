@@ -39,7 +39,7 @@ class ArticleCard extends StatelessWidget {
       onTap: () => _navigateToArticleDetail(context, article),
       child: Card(
         elevation: 4.0,
-        margin: const EdgeInsets.all(10.0),
+        margin: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 8.0),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10.0),
         ),

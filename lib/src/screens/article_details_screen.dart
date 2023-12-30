@@ -78,7 +78,7 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(20.0, 5.0, 20.0, 5.0),
+          padding: const EdgeInsets.symmetric(horizontal: 14.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[

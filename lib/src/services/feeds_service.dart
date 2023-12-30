@@ -75,22 +75,26 @@ class FeedsService {
     }
   }
 
-  Future<String> detectFeedType(String xmlString) async {
-    try {
-      var document = xml.XmlDocument.parse(xmlString);
-      var root = document.rootElement;
+Future<String> detectFeedType(String xmlString) async {
+  try {
+    print('detectFeedType');
+    print('XML String: $xmlString');  // Debug: print the XML string
 
-      if (root.name.local == 'rss') {
-        return 'RSS';
-      } else if (root.name.local == 'feed') {
-        return 'Atom';
-      } else {
-        throw Exception('Unknown feed type');
-      }
-    } catch (e) {
-      rethrow;
+    var document = xml.XmlDocument.parse(xmlString);
+    var root = document.rootElement;
+
+    if (root.name.local == 'rss') {
+      return 'RSS';
+    } else if (root.name.local == 'feed') {
+      return 'Atom';
+    } else {
+      throw Exception('Unknown feed type');
     }
+  } catch (e) {
+    print('XML Parsing Error: $e');
+    rethrow;
   }
+}
 
   Future<void> addFeed(Feed feedSearchResult) async {
     try {
@@ -104,20 +108,23 @@ class FeedsService {
         throw Exception('You have already subscribed to this feed');
       }
 
-      http.Response feedResponse;
+      http.Response response;
       try {
-        feedResponse = await http.get(Uri.parse(feedSearchResult.link!));
+        response = await http.get(Uri.parse(feedSearchResult.link!));
       } catch (e) {
+        print(e);
         throw Exception(
             'Network error: Unable to fetch feed. Please try again when online.');
       }
 
-      final feedType = await detectFeedType(feedResponse.body);
+      String decodedBody = utf8.decode(response.bodyBytes);
+      final feedType = await detectFeedType(decodedBody);
 
       List<Map<String, dynamic>> items;
 
       if (feedType == 'RSS') {
-        var rssFeed = RssFeed.parse(feedResponse.body);
+        print('RSS');
+        var rssFeed = RssFeed.parse(decodedBody);
         items = rssFeed.items!.map((item) {
           return {
             'title': item.title,
@@ -131,7 +138,8 @@ class FeedsService {
           };
         }).toList();
       } else if (feedType == 'Atom') {
-        var atomFeed = AtomFeed.parse(feedResponse.body);
+        print('Atom');
+        var atomFeed = AtomFeed.parse(decodedBody);
         items = atomFeed.items!.map((item) {
           return {
             'title': item.title,
