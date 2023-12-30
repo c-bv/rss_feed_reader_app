@@ -13,7 +13,7 @@ class ArticleDetailScreen extends StatefulWidget {
 }
 
 void _launchURL(String? urlString) async {
-  if (urlString == null) return; // Exit if URL is null
+  if (urlString == null) return;
 
   final Uri url = Uri.parse(urlString);
 
@@ -31,9 +31,14 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
       appBar: AppBar(
         title: Text(widget.article.feedTitle!),
         actions: <Widget>[
-          IconButton(
-            icon: const Icon(Icons.open_in_browser),
-            onPressed: () {},
+          Tooltip(
+            message: 'Open in browser',
+            child: IconButton(
+              icon: const Icon(Icons.open_in_browser),
+              onPressed: () {
+                _launchURL(widget.article.link);
+              },
+            ),
           ),
           PopupMenuButton(
             itemBuilder: (context) => [
