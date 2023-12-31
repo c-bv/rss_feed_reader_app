@@ -2,29 +2,42 @@ import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:intl/intl.dart';
 import 'package:rss_feed_reader_app/src/models/article.dart';
+import 'package:rss_feed_reader_app/src/providers/feed_provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class ArticleDetailScreen extends StatefulWidget {
   final Article article;
-  const ArticleDetailScreen({super.key, required this.article});
+
+  ArticleDetailScreen({super.key, required this.article});
 
   @override
   _ArticleDetailScreenState createState() => _ArticleDetailScreenState();
 }
 
-void _launchURL(String? urlString) async {
-  if (urlString == null) return;
-
-  final Uri url = Uri.parse(urlString);
-
-  if (await canLaunchUrl(url)) {
-    await launchUrl(url);
-  } else {
-    print('Could not launch $urlString');
-  }
-}
-
 class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
+ 
+  void _markArticleAsRead(Article article) async {
+    await FeedProvider().markArticleAsRead(article);
+  }
+
+  void _launchURL(String? urlString) async {
+    if (urlString == null) return;
+
+    final Uri url = Uri.parse(urlString);
+
+    if (await canLaunchUrl(url)) {
+      await launchUrl(url);
+    } else {
+      print('Could not launch $urlString');
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _markArticleAsRead(widget.article);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

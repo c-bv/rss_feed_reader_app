@@ -31,6 +31,7 @@ class FeedsService {
         return Article(
           title: article['title'],
           feedTitle: feedSnapshot['title'],
+          feedUrl: feedSnapshot['link'],
           link: article['link'],
           description: article['description'],
           content: article['content'],
@@ -102,9 +103,6 @@ class FeedsService {
 
   Future<String> detectFeedType(String xmlString) async {
     try {
-      print('detectFeedType');
-      print('XML String: $xmlString'); // Debug: print the XML string
-
       var document = xml.XmlDocument.parse(xmlString);
       var root = document.rootElement;
 
@@ -187,6 +185,29 @@ class FeedsService {
         'link': feedSearchResult.link,
         'items': items,
       });
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<void> markArticleAsRead(String feedId, String articleLink) async {
+    try {
+      var userFeeds =
+          _firestore.collection('users').doc(_userId).collection('feeds');
+
+      var feedSnapshot = await userFeeds.where('link', isEqualTo: feedId).get();
+
+      if (feedSnapshot.docs.isEmpty) {
+        throw Exception('Feed not found');
+      }
+
+      var feedDoc = feedSnapshot.docs.first;
+      var items = feedDoc['items'];
+
+      var article = items.firstWhere((item) => item['link'] == articleLink);
+      article['read'] = true;
+
+      await feedDoc.reference.update({'items': items});
     } catch (e) {
       rethrow;
     }

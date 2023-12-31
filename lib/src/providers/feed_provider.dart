@@ -51,4 +51,10 @@ class FeedProvider with ChangeNotifier {
     return await _feedsService.getFilteredArticles(
         _selectedFeedId, _filterOption);
   }
+
+  // markArticleAsRead
+  Future<void> markArticleAsRead(Article article) async {
+    await _feedsService.markArticleAsRead(article.feedUrl!, article.link!);
+    notifyListeners();
+  }
 }

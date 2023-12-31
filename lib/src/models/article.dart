@@ -3,6 +3,7 @@ class Article {
   final String? iconUrl;
   final String? content;
   final String? feedTitle;
+  final String? feedUrl;
   final String? title;
   final String? description;
   final String? link;
@@ -22,6 +23,7 @@ class Article {
     this.iconUrl,
     this.content,
     this.feedTitle,
+    this.feedUrl,
     this.title,
     this.description,
     this.link,
