@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
 import 'package:rss_feed_reader_app/src/config/firebase_options.dart';
-import 'package:rss_feed_reader_app/src/providers/nav_provider.dart';
+import 'package:rss_feed_reader_app/src/providers/feed_provider.dart';
 import 'package:rss_feed_reader_app/src/providers/theme_provider.dart';
 import 'package:rss_feed_reader_app/src/screens/home_screen.dart';
 import 'package:rss_feed_reader_app/src/screens/sign_in_screen.dart';
@@ -32,7 +32,7 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (context) => ThemeProvider()),
-        ChangeNotifierProvider(create: (context) => NavProvider()),
+        ChangeNotifierProvider(create: (context) => FeedProvider()),
       ],
       child: Consumer<ThemeProvider>(
         builder: (context, themeProvider, child) {

@@ -1,15 +1,27 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:rss_feed_reader_app/src/providers/feed_provider.dart';
 import 'package:rss_feed_reader_app/src/screens/add_feed_screen.dart';
 
-class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
+class AppBarWidget extends StatefulWidget implements PreferredSizeWidget {
   final String title;
 
   const AppBarWidget({super.key, required this.title});
 
   @override
+  _AppBarWidgetState createState() => _AppBarWidgetState();
+
+  @override
+  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
+}
+
+class _AppBarWidgetState extends State<AppBarWidget> {
+  String selectedFilter = 'unread';
+
+  @override
   Widget build(BuildContext context) {
     return AppBar(
-      title: Text(title),
+      title: Text(widget.title),
       leading: Builder(
         builder: (context) => GestureDetector(
           onTap: () {
@@ -23,11 +35,57 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
       ),
       actions: [
         PopupMenuButton<String>(
+          icon: const Icon(Icons.filter_list_outlined),
+          onSelected: _handleFilterMenuSelection,
+          itemBuilder: (context) => _buildFilterMenuItems(),
+        ),
+        PopupMenuButton<String>(
+          icon: const Icon(Icons.more_vert_outlined),
           onSelected: (value) => _handleMenuSelection(context, value),
           itemBuilder: (context) => _buildMenuItems(),
         ),
       ],
     );
+  }
+
+  List<PopupMenuEntry<String>> _buildFilterMenuItems() {
+    return [
+      PopupMenuItem<String>(
+        value: 'all',
+        child: RadioListTile<String>(
+          title: const Text('All'),
+          value: 'all',
+          groupValue: selectedFilter,
+          onChanged: (value) => _handleFilterMenuSelection(value),
+        ),
+      ),
+      PopupMenuItem<String>(
+        value: 'unread',
+        child: RadioListTile<String>(
+          title: const Text('Unread'),
+          value: 'unread',
+          groupValue: selectedFilter,
+          onChanged: (value) => _handleFilterMenuSelection(value),
+        ),
+      ),
+      PopupMenuItem<String>(
+        value: 'read',
+        child: RadioListTile<String>(
+          title: const Text('Read'),
+          value: 'read',
+          groupValue: selectedFilter,
+          onChanged: (value) => _handleFilterMenuSelection(value),
+        ),
+      ),
+    ];
+  }
+
+  void _handleFilterMenuSelection(String? value) {
+    setState(() {
+      selectedFilter = value!;
+      Provider.of<FeedProvider>(context, listen: false).setFilterOption(value);
+    });
+    Navigator.pop(context);
   }
 
   List<PopupMenuEntry<String>> _buildMenuItems() {
@@ -59,8 +117,10 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
   void _handleMenuSelection(BuildContext context, String value) {
     switch (value) {
       case 'settings':
+        // Add your logic for settings
         break;
       case 'profile':
+        // Add your logic for profile
         break;
       case 'add_feed':
         Navigator.of(context).push(
@@ -71,7 +131,4 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
         break;
     }
   }
-
-  @override
-  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 }

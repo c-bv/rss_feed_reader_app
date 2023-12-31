@@ -11,52 +11,77 @@ import 'package:xml/xml.dart' as xml;
 class FeedsService {
   final _firestore = FirebaseFirestore.instance;
   final _userId = AuthService().userId;
+  final List<Feed> feeds = [];
+  final List<Article> _articles = [];
 
-  Future<List<Map<String, dynamic>>> getUserFeeds() async {
-    try {
-      var userFeeds =
-          _firestore.collection('users').doc(_userId).collection('feeds');
+  Future<void> fetchFeedsAndArticles() async {
+    feeds.clear();
 
-      var feeds = await userFeeds.get(const GetOptions(source: Source.cache));
-      if (feeds.docs.isEmpty) {
-        feeds = await userFeeds.get();
-      }
-
-      return feeds.docs.map((feed) {
-        return {
-          'title': feed['title'],
-          'iconUrl': feed['iconUrl'],
-        };
-      }).toList();
-    } catch (e) {
-      rethrow;
-    }
-  }
-
-  Future<List<Article>> getAllArticles() async {
     var userFeeds =
         _firestore.collection('users').doc(_userId).collection('feeds');
-    var feeds = await userFeeds.get();
-    List<Article> allArticles = [];
+    var feedsSnapshot =
+        await userFeeds.get(const GetOptions(source: Source.cache));
 
-    for (var feed in feeds.docs) {
-      var feedArticles = feed['items'].map<Article>((article) {
+    if (feedsSnapshot.docs.isEmpty) {
+      feedsSnapshot = await userFeeds.get();
+    }
+
+    for (var feedSnapshot in feedsSnapshot.docs) {
+      var feedArticles = feedSnapshot['items'].map<Article>((article) {
         return Article(
           title: article['title'],
-          feedTitle: feed['title'],
+          feedTitle: feedSnapshot['title'],
           link: article['link'],
           description: article['description'],
           content: article['content'],
           author: article['author'],
           imageUrl: article['imageUrl'],
-          iconUrl: feed['iconUrl'],
+          iconUrl: feedSnapshot['iconUrl'],
           pubDate: article['pubDate'],
           read: article['read'],
         );
       }).toList();
-      allArticles.addAll(feedArticles);
+
+      Feed feed = Feed(
+        link: feedSnapshot['link'],
+        title: feedSnapshot['title'],
+        items: feedArticles,
+        iconUrl: feedSnapshot['iconUrl'],
+      );
+
+      feeds.add(feed);
+      _articles.addAll(feedArticles);
     }
-    return allArticles;
+  }
+
+  Future<List<Article>> getArticlesByFeed(String? feedUrl) async {
+    if (feeds.isEmpty) {
+      await fetchFeedsAndArticles();
+    }
+    print('getArticlesByFeed');
+    print(feedUrl);
+    print(feedUrl == null);
+    if (feedUrl == null) {
+      return _articles;
+    } else {
+      return feeds.firstWhere((feed) => feed.link == feedUrl).items!;
+    }
+  }
+
+  Future<List<Article>> getFilteredArticles(
+      String? feedUrl, String? filterOption) async {
+    List<Article> articles = await getArticlesByFeed(feedUrl);
+    articles.sort((a, b) => b.pubDate!.compareTo(a.pubDate!));
+    switch (filterOption) {
+      case 'all':
+        return articles;
+      case 'read':
+        return articles.where((article) => article.read!).toList();
+      case 'unread':
+        return articles.where((article) => !article.read!).toList();
+      default:
+        return articles;
+    }
   }
 
   List<Feed> parseSearchResults(String responseBody) {
@@ -75,26 +100,26 @@ class FeedsService {
     }
   }
 
-Future<String> detectFeedType(String xmlString) async {
-  try {
-    print('detectFeedType');
-    print('XML String: $xmlString');  // Debug: print the XML string
+  Future<String> detectFeedType(String xmlString) async {
+    try {
+      print('detectFeedType');
+      print('XML String: $xmlString'); // Debug: print the XML string
 
-    var document = xml.XmlDocument.parse(xmlString);
-    var root = document.rootElement;
+      var document = xml.XmlDocument.parse(xmlString);
+      var root = document.rootElement;
 
-    if (root.name.local == 'rss') {
-      return 'RSS';
-    } else if (root.name.local == 'feed') {
-      return 'Atom';
-    } else {
-      throw Exception('Unknown feed type');
+      if (root.name.local == 'rss') {
+        return 'RSS';
+      } else if (root.name.local == 'feed') {
+        return 'Atom';
+      } else {
+        throw Exception('Unknown feed type');
+      }
+    } catch (e) {
+      print('XML Parsing Error: $e');
+      rethrow;
     }
-  } catch (e) {
-    print('XML Parsing Error: $e');
-    rethrow;
   }
-}
 
   Future<void> addFeed(Feed feedSearchResult) async {
     try {

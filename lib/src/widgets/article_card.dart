@@ -138,7 +138,7 @@ class ArticleCard extends StatelessWidget {
               Positioned.fill(
                 child: Container(
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
+                    color: Colors.white.withOpacity(0.5),
                     borderRadius: BorderRadius.circular(10.0),
                   ),
                 ),
