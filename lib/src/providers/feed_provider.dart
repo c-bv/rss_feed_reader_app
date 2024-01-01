@@ -17,8 +17,10 @@ class FeedProvider with ChangeNotifier {
   // Getters
   List<Feed> get feeds => _feedsService.feeds;
   List<Article> get articles => _feedsService.articles;
+
   String? get selectedFeedId => _selectedFeedId;
   String get filterOption => _filterOption;
+  
   String? get selectedFeedTitle => _selectedFeedId == null
       ? null
       : feeds.firstWhere((feed) => feed.link == _selectedFeedId).title;

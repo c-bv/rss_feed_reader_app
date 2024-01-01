@@ -15,6 +15,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final ScrollController _scrollController = ScrollController();
+  String? _lastFeedId;
 
   @override
   void dispose() {
@@ -28,6 +29,16 @@ class _HomeScreenState extends State<HomeScreen> {
       builder: (context, feedProvider, child) {
         String appBarTitle = feedProvider.selectedFeedTitle ?? 'All Articles';
         List<Article> articles = feedProvider.filteredArticles;
+
+        if (_lastFeedId != feedProvider.selectedFeedId) {
+          _lastFeedId = feedProvider.selectedFeedId;
+          _scrollController.animateTo(
+            0,
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeOut,
+          );
+        }
+
         return Scaffold(
           appBar: AppBarWidget(title: appBarTitle),
           drawer: const NavDrawer(),
