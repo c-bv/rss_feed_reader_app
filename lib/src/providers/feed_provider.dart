@@ -54,7 +54,7 @@ class FeedProvider with ChangeNotifier {
   }
 
   Future<void> markArticleAsRead(Article article) async {
-    await _feedsService.markArticleAsRead(article.feedUrl!, article.link!);
+    await _feedsService.markArticleAsRead(article);
 
     var localArticle = articles.firstWhere(
       (a) => a.link == article.link,
