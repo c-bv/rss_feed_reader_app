@@ -10,10 +10,16 @@ class FeedProvider with ChangeNotifier {
   String? _selectedFeedId;
   String _filterOption = 'unread';
 
-  String? get selectedFeedId => _selectedFeedId;
-  String get filterOption => _filterOption;
   List<Feed> get feeds => _feedsService.feeds;
   List<Article> get articles => _feedsService.articles;
+
+  String? get selectedFeedId => _selectedFeedId;
+  String? get selectedFeedTitle {
+    if (_selectedFeedId == null) return null;
+    return feeds.firstWhere((feed) => feed.link == _selectedFeedId).title;
+  }
+
+  String get filterOption => _filterOption;
 
   FeedProvider() {
     _loadPreferences();
@@ -38,6 +44,8 @@ class FeedProvider with ChangeNotifier {
   }
 
   Future<void> setFilterOption(String option) async {
+    print('setFilterOption: $option');
+    print('setFilterOption: $selectedFeedTitle');
     _filterOption = option;
     await _updatePreference('filterOption', option);
     notifyListeners();

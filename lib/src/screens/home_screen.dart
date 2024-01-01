@@ -16,10 +16,11 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
-      return Consumer<FeedProvider>(
+    return Consumer<FeedProvider>(
       builder: (context, feedProvider, child) {
+        String appBarTitle = feedProvider.selectedFeedTitle ?? 'All Articles';
         return Scaffold(
-          appBar: const AppBarWidget(title: 'All Feeds'),
+          appBar: AppBarWidget(title: appBarTitle),
           drawer: const NavDrawer(),
           body: FutureBuilder<List<Article>>(
             future: feedProvider.getFilteredArticles(),
