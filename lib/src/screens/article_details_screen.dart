@@ -20,7 +20,7 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
       Provider.of<FeedProvider>(context, listen: false);
 
   void _markArticleAsRead(Article article) async {
-    await feedProvider.markArticleAsRead(article);
+    await feedProvider.toggleArticleReadStatus(article);
   }
 
   void _launchURL(String? urlString) async {

@@ -36,7 +36,12 @@ class _HomeScreenState extends State<HomeScreen> {
                   itemCount: snapshot.data!.length,
                   itemBuilder: (context, index) {
                     var article = snapshot.data![index];
-                    return ArticleCard(article: article);
+                    return ArticleCard(
+                      article: article,
+                      onMarkAsRead: (updatedArticle) {
+                        feedProvider.toggleArticleReadStatus(updatedArticle);
+                      },
+                    );
                   },
                 );
               }

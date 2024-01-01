@@ -61,14 +61,15 @@ class FeedProvider with ChangeNotifier {
         _selectedFeedId, _filterOption);
   }
 
-  Future<void> markArticleAsRead(Article article) async {
-    await _feedsService.markArticleAsRead(article);
+  Future<void> toggleArticleReadStatus(Article article) async {
+    bool newReadStatus = !article.read!;
+    await _feedsService.markArticleReadStatus(article, newReadStatus);
 
     var localArticle = articles.firstWhere(
       (a) => a.link == article.link,
       orElse: () => article,
     );
-    localArticle.read = true;
+    localArticle.read = newReadStatus;
 
     notifyListeners();
   }

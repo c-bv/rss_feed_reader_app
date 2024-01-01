@@ -190,24 +190,26 @@ class FeedsService {
     }
   }
 
-  Future<void> markArticleAsRead(Article article) async {
+  Future<void> markArticleReadStatus(Article article, bool readStatus) async {
     try {
       var userFeeds =
           _firestore.collection('users').doc(_userId).collection('feeds');
-
-      var feedDoc =
+      var feedSnapshot =
           await userFeeds.where('link', isEqualTo: article.feedUrl).get();
 
-      if (feedDoc.docs.isEmpty) {
+      if (feedSnapshot.docs.isEmpty) {
         throw Exception('Feed not found');
       }
 
-      var feed = feedDoc.docs.first;
-      var items = feed['items'];
-      var item = items.firstWhere((i) => i['link'] == article.link);
-      item['read'] = true;
+      var feedDoc = feedSnapshot.docs.first;
+      var items = feedDoc['items'];
 
-      await feed.reference.update({'items': items});
+      var articleIndex =
+          items.indexWhere((item) => item['link'] == article.link);
+      if (articleIndex != -1) {
+        items[articleIndex]['read'] = readStatus;
+        await feedDoc.reference.update({'items': items});
+      }
     } catch (e) {
       rethrow;
     }
