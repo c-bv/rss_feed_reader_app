@@ -17,6 +17,7 @@ class FeedsService {
   // Fetch feeds and articles from Firestore
   Future<void> fetchFeedsAndArticles() async {
     feeds.clear();
+    articles.clear();
 
     var userFeeds =
         _firestore.collection('users').doc(_userId).collection('feeds');

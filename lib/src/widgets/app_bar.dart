@@ -16,12 +16,11 @@ class AppBarWidget extends StatefulWidget implements PreferredSizeWidget {
 }
 
 class _AppBarWidgetState extends State<AppBarWidget> {
-  final FeedProvider _feedProvider = FeedProvider();
-  
   String? selectedFilter;
 
   Future<void> _loadStoredFilterOption() async {
-    var filterOption = await _feedProvider.getStoredFilterOption();
+    final feedProvider = Provider.of<FeedProvider>(context, listen: false);
+    final filterOption = feedProvider.filterOption;
     setState(() {
       selectedFilter = filterOption;
     });
