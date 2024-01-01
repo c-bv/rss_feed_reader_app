@@ -13,6 +13,7 @@ class FeedProvider with ChangeNotifier {
   String? get selectedFeedId => _selectedFeedId;
   String get filterOption => _filterOption;
   List<Feed> get feeds => _feedsService.feeds;
+  List<Article> get articles => _feedsService.articles;
 
   FeedProvider() {
     _loadPreferences();
@@ -21,10 +22,7 @@ class FeedProvider with ChangeNotifier {
   Future<void> _loadPreferences() async {
     final prefs = await SharedPreferences.getInstance();
     _selectedFeedId = prefs.getString('selectedFeedId');
-    if (_selectedFeedId == null || _selectedFeedId!.isEmpty) {
-      _selectedFeedId = null;
-    }
-    _filterOption = prefs.getString('filterOption') ?? 'unread';
+    _filterOption = prefs.getString('filterOption') ?? _filterOption;
     notifyListeners();
   }
 
@@ -35,16 +33,19 @@ class FeedProvider with ChangeNotifier {
 
   Future<void> selectFeed(String? feedId) async {
     _selectedFeedId = feedId;
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('selectedFeedId', feedId ?? '');
+    await _updatePreference('selectedFeedId', feedId);
     notifyListeners();
   }
 
-  Future<void> setFilterOption(String filterOption) async {
-    _filterOption = filterOption;
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('filterOption', filterOption);
+  Future<void> setFilterOption(String option) async {
+    _filterOption = option;
+    await _updatePreference('filterOption', option);
     notifyListeners();
+  }
+
+  Future<String?> getStoredFilterOption() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('filterOption');
   }
 
   Future<List<Article>> getFilteredArticles() async {
@@ -52,9 +53,24 @@ class FeedProvider with ChangeNotifier {
         _selectedFeedId, _filterOption);
   }
 
-  // markArticleAsRead
   Future<void> markArticleAsRead(Article article) async {
     await _feedsService.markArticleAsRead(article.feedUrl!, article.link!);
+
+    var localArticle = articles.firstWhere(
+      (a) => a.link == article.link,
+      orElse: () => article,
+    );
+    localArticle.read = true;
+
     notifyListeners();
+  }
+
+  Future<void> _updatePreference(String key, String? value) async {
+    final prefs = await SharedPreferences.getInstance();
+    if (value != null && value.isNotEmpty) {
+      await prefs.setString(key, value);
+    } else {
+      await prefs.remove(key);
+    }
   }
 }

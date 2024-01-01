@@ -16,7 +16,22 @@ class AppBarWidget extends StatefulWidget implements PreferredSizeWidget {
 }
 
 class _AppBarWidgetState extends State<AppBarWidget> {
-  String selectedFilter = 'unread';
+  final FeedProvider _feedProvider = FeedProvider();
+  
+  String? selectedFilter;
+
+  Future<void> _loadStoredFilterOption() async {
+    var filterOption = await _feedProvider.getStoredFilterOption();
+    setState(() {
+      selectedFilter = filterOption;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _loadStoredFilterOption();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -35,11 +50,13 @@ class _AppBarWidgetState extends State<AppBarWidget> {
       ),
       actions: [
         PopupMenuButton<String>(
+          tooltip: 'Filter',
           icon: const Icon(Icons.filter_list_outlined),
           onSelected: _handleFilterMenuSelection,
           itemBuilder: (context) => _buildFilterMenuItems(),
         ),
         PopupMenuButton<String>(
+          tooltip: 'More',
           icon: const Icon(Icons.more_vert_outlined),
           onSelected: (value) => _handleMenuSelection(context, value),
           itemBuilder: (context) => _buildMenuItems(),

@@ -16,7 +16,7 @@ class Article {
   final Map<String, dynamic>? media;
   final Map<String, dynamic>? enclosure;
   final Map<String, dynamic>? dc;
-  final bool? read;
+   bool? read;
 
   Article({
     this.imageUrl,

@@ -12,8 +12,9 @@ class FeedsService {
   final _firestore = FirebaseFirestore.instance;
   final _userId = AuthService().userId;
   final List<Feed> feeds = [];
-  final List<Article> _articles = [];
+  final List<Article> articles = [];
 
+  // Fetch feeds and articles from Firestore
   Future<void> fetchFeedsAndArticles() async {
     feeds.clear();
 
@@ -51,24 +52,23 @@ class FeedsService {
       );
 
       feeds.add(feed);
-      _articles.addAll(feedArticles);
+      articles.addAll(feedArticles);
     }
   }
 
+  // Filter articles by feed
   Future<List<Article>> getArticlesByFeed(String? feedUrl) async {
     if (feeds.isEmpty) {
       await fetchFeedsAndArticles();
     }
-    print('getArticlesByFeed');
-    print(feedUrl);
-    print(feedUrl == null);
     if (feedUrl == null) {
-      return _articles;
+      return articles;
     } else {
       return feeds.firstWhere((feed) => feed.link == feedUrl).items!;
     }
   }
 
+  // Filter articles by read/unread
   Future<List<Article>> getFilteredArticles(
       String? feedUrl, String? filterOption) async {
     List<Article> articles = await getArticlesByFeed(feedUrl);

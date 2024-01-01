@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:rss_feed_reader_app/src/models/feed.dart';
 import 'package:rss_feed_reader_app/src/providers/feed_provider.dart';
 
 class NavDrawer extends StatefulWidget {
@@ -11,44 +12,10 @@ class NavDrawer extends StatefulWidget {
 }
 
 class _NavDrawerState extends State<NavDrawer> {
-  String? selectedFeedId;
+  FeedProvider get feedProvider => Provider.of<FeedProvider>(context);
 
-  late bool showNavigationDrawer;
-
-  @override
-  void initState() {
-    super.initState();
-  }
-
-  void onFeedSelected(String feedUrl) {
-    Provider.of<FeedProvider>(context, listen: false).selectFeed(feedUrl);
-    setState(() {
-      selectedFeedId = feedUrl;
-    });
-    Navigator.pop(context);
-  }
-
-  void onAllFeedsSelected() {
-    Provider.of<FeedProvider>(context, listen: false).selectFeed(null);
-    setState(() {
-      selectedFeedId = null;
-    });
-    Navigator.pop(context);
-  }
-
-  void openDrawer() {
-    setState(() {
-      showNavigationDrawer = true;
-    });
-  }
-
-  int _getUnreadCount(String feedId) {
-    final feedProvider = Provider.of<FeedProvider>(context, listen: false);
-    final articles = feedProvider.feeds
-        .firstWhere((feed) => feed.link == feedId)
-        .items!
-        .where((article) => !article.read!);
-    return articles.length;
+  int _getUnreadCount(Feed feed) {
+    return feed.items!.where((article) => !article.read!).length;
   }
 
   @override
@@ -59,17 +26,19 @@ class _NavDrawerState extends State<NavDrawer> {
           children: <Widget>[
             ListTile(
               title: const Text('All feeds'),
-              onTap: () => onAllFeedsSelected(),
+              onTap: () {
+                feedProvider.selectFeed(null);
+                Navigator.pop(context);
+              },
             ),
-             ListTile(
+            ListTile(
               title: const Text('Saved articles'),
               leading: const Icon(Icons.bookmark),
-              onTap: () => onAllFeedsSelected(),
-              
+              onTap: () => {},
             ),
             const Divider(),
             ...feedProvider.feeds.map((feed) {
-              int unreadCount = _getUnreadCount(feed.link!);
+              int unreadCount = _getUnreadCount(feed);
               return ListTile(
                 title: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -107,9 +76,10 @@ class _NavDrawerState extends State<NavDrawer> {
                       : const Icon(Icons.rss_feed,
                           color: Colors.white, size: 14.0),
                 ),
-                onTap: () => onFeedSelected(
-                  feed.link!,
-                ),
+                onTap: () {
+                  feedProvider.selectFeed(feed.link);
+                  Navigator.pop(context);
+                },
               );
             }),
           ],

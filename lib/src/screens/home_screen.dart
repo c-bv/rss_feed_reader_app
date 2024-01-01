@@ -16,7 +16,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
-    return Consumer<FeedProvider>(
+      return Consumer<FeedProvider>(
       builder: (context, feedProvider, child) {
         return Scaffold(
           appBar: const AppBarWidget(title: 'All Feeds'),

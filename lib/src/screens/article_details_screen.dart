@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import 'package:rss_feed_reader_app/src/models/article.dart';
 import 'package:rss_feed_reader_app/src/providers/feed_provider.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -8,16 +9,18 @@ import 'package:url_launcher/url_launcher.dart';
 class ArticleDetailScreen extends StatefulWidget {
   final Article article;
 
-  ArticleDetailScreen({super.key, required this.article});
+  const ArticleDetailScreen({super.key, required this.article});
 
   @override
   _ArticleDetailScreenState createState() => _ArticleDetailScreenState();
 }
 
 class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
- 
+  FeedProvider get feedProvider =>
+      Provider.of<FeedProvider>(context, listen: false);
+
   void _markArticleAsRead(Article article) async {
-    await FeedProvider().markArticleAsRead(article);
+    await feedProvider.markArticleAsRead(article);
   }
 
   void _launchURL(String? urlString) async {
@@ -35,7 +38,9 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
   @override
   void initState() {
     super.initState();
-    _markArticleAsRead(widget.article);
+    if (!widget.article.read!) {
+      _markArticleAsRead(widget.article);
+    }
   }
 
   @override
@@ -54,6 +59,7 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
             ),
           ),
           PopupMenuButton(
+            tooltip: 'More',
             itemBuilder: (context) => [
               const PopupMenuItem(
                 value: 'share',
