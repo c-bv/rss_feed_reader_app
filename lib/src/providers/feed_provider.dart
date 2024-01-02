@@ -20,7 +20,7 @@ class FeedProvider with ChangeNotifier {
 
   String? get selectedFeedId => _selectedFeedId;
   String get filterOption => _filterOption;
-  
+
   String? get selectedFeedTitle => _selectedFeedId == null
       ? null
       : feeds.firstWhere((feed) => feed.link == _selectedFeedId).title;
@@ -64,7 +64,7 @@ class FeedProvider with ChangeNotifier {
     var localArticle = articles.firstWhere((a) => a.link == article.link);
     bool newReadStatus = !localArticle.read!;
     localArticle.read = newReadStatus;
-
+    
     await _feedsService.markArticleReadStatus(article, newReadStatus);
     notifyListeners();
   }

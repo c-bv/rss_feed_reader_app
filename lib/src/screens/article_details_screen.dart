@@ -91,8 +91,8 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
                 case 'bookmark':
                   // bookmark article
                   break;
-                case 'markAsRead':
-                  // mark article as read
+                case 'markAsUnread':
+                  _markArticleAsRead(widget.article);
                   break;
                 default:
               }
@@ -116,10 +116,8 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
                   const SizedBox(height: 10),
                   GestureDetector(
                     onTap: () {
-                      // Navigator.pushNamed(context, '/feed', arguments: {
-                      //   'title': widget.article.feedTitle,
-                      //   'iconUrl': widget.article.iconUrl,
-                      // });
+                      feedProvider.selectFeed(widget.article.feedUrl);
+                      Navigator.pop(context);
                     },
                     child: Text(
                       widget.article.feedTitle!,
@@ -134,7 +132,10 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
                   ),
                   const SizedBox(height: 10),
                   Text(
-                    'by ${widget.article.author}, ${DateFormat('EEEE, MMMM d, y H:mm').format(DateTime.parse(widget.article.pubDate!))}',
+                    widget.article.author != null
+                        ? 'by ${widget.article.author}, ${DateFormat('EEEE, MMMM d, y H:mm').format(DateTime.parse(widget.article.pubDate!))}'
+                        : DateFormat('EEEE, MMMM d, y H:mm')
+                            .format(DateTime.parse(widget.article.pubDate!)),
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
                   const SizedBox(height: 10),
