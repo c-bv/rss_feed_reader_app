@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:rss_feed_reader_app/src/models/article.dart';
 import 'package:rss_feed_reader_app/src/providers/feed_provider.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:share_plus/share_plus.dart';
 
 class ArticleDetailScreen extends StatefulWidget {
   final Article article;
@@ -84,10 +85,9 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
               ),
             ],
             onSelected: (value) {
-              print(value);
               switch (value) {
                 case 'share':
-                  // share article
+                  Share.share(widget.article.link!);
                   break;
                 case 'bookmark':
                   // bookmark article
