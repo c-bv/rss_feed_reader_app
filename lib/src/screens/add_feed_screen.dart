@@ -65,6 +65,7 @@ class _AddFeedScreenState extends State<AddFeedScreen> {
     return Scaffold(
       appBar: AppBar(
           title: const Text('Add Feed'),
+          titleSpacing: 0.0,
           leading: IconButton(
             icon: const Icon(Icons.arrow_back),
             onPressed: () => Navigator.of(context).pop(),

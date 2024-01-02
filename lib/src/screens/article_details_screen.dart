@@ -4,8 +4,8 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:rss_feed_reader_app/src/models/article.dart';
 import 'package:rss_feed_reader_app/src/providers/feed_provider.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ArticleDetailScreen extends StatefulWidget {
   final Article article;
@@ -49,6 +49,7 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.article.feedTitle!),
+        titleSpacing: 0.0,
         actions: <Widget>[
           Tooltip(
             message: 'Open in browser',
@@ -70,16 +71,16 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
                 ),
               ),
               const PopupMenuItem(
-                value: 'bookmark',
+                value: 'save',
                 child: ListTile(
                   leading: Icon(Icons.bookmark),
-                  title: Text('Bookmark'),
+                  title: Text('Save article'),
                 ),
               ),
               const PopupMenuItem(
                 value: 'markAsUnread',
                 child: ListTile(
-                  leading: Icon(Icons.markunread),
+                  leading: Icon(Icons.visibility_off),
                   title: Text('Mark as Unread'),
                 ),
               ),
@@ -89,7 +90,7 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
                 case 'share':
                   Share.share(widget.article.link!);
                   break;
-                case 'bookmark':
+                case 'save':
                   // bookmark article
                   break;
                 case 'markAsUnread':

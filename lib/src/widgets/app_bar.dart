@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:rss_feed_reader_app/src/providers/feed_provider.dart';
 import 'package:rss_feed_reader_app/src/screens/add_feed_screen.dart';
+import 'package:rss_feed_reader_app/src/screens/settings_screen.dart';
 
 class AppBarWidget extends StatefulWidget implements PreferredSizeWidget {
   final String title;
@@ -24,44 +25,6 @@ class _AppBarWidgetState extends State<AppBarWidget> {
     setState(() {
       selectedFilter = filterOption;
     });
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _loadStoredFilterOption();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AppBar(
-      title: Text(widget.title),
-      leading: Builder(
-        builder: (context) => GestureDetector(
-          onTap: () {
-            Scaffold.of(context).openDrawer();
-          },
-          child: Container(
-            margin: const EdgeInsets.all(10),
-            child: const Icon(Icons.menu),
-          ),
-        ),
-      ),
-      actions: [
-        PopupMenuButton<String>(
-          tooltip: 'Filter',
-          icon: const Icon(Icons.filter_list_outlined),
-          onSelected: _handleFilterMenuSelection,
-          itemBuilder: (context) => _buildFilterMenuItems(),
-        ),
-        PopupMenuButton<String>(
-          tooltip: 'More',
-          icon: const Icon(Icons.more_vert_outlined),
-          onSelected: (value) => _handleMenuSelection(context, value),
-          itemBuilder: (context) => _buildMenuItems(),
-        ),
-      ],
-    );
   }
 
   List<PopupMenuEntry<String>> _buildFilterMenuItems() {
@@ -96,14 +59,6 @@ class _AppBarWidgetState extends State<AppBarWidget> {
     ];
   }
 
-  void _handleFilterMenuSelection(String? value) {
-    setState(() {
-      selectedFilter = value!;
-      Provider.of<FeedProvider>(context, listen: false).setFilterOption(value);
-    });
-    Navigator.pop(context);
-  }
-
   List<PopupMenuEntry<String>> _buildMenuItems() {
     return [
       const PopupMenuItem<String>(
@@ -130,10 +85,20 @@ class _AppBarWidgetState extends State<AppBarWidget> {
     ];
   }
 
+  void _handleFilterMenuSelection(String? value) {
+    setState(() {
+      selectedFilter = value!;
+      Provider.of<FeedProvider>(context, listen: false).setFilterOption(value);
+    });
+    Navigator.pop(context);
+  }
+
   void _handleMenuSelection(BuildContext context, String value) {
     switch (value) {
       case 'settings':
-        // Add your logic for settings
+        Navigator.of(context).push(
+          MaterialPageRoute(builder: (context) => const SettingsScreen()),
+        );
         break;
       case 'profile':
         // Add your logic for profile
@@ -146,5 +111,37 @@ class _AppBarWidgetState extends State<AppBarWidget> {
         );
         break;
     }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _loadStoredFilterOption();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AppBar(
+      title: Text(widget.title),
+      titleSpacing: 0.0,
+      leading: IconButton(
+        icon: const Icon(Icons.menu),
+        onPressed: () => Scaffold.of(context).openDrawer(),
+      ),
+      actions: [
+        PopupMenuButton<String>(
+          tooltip: 'Filter',
+          icon: const Icon(Icons.filter_list_outlined),
+          onSelected: _handleFilterMenuSelection,
+          itemBuilder: (context) => _buildFilterMenuItems(),
+        ),
+        PopupMenuButton<String>(
+          tooltip: 'More',
+          icon: const Icon(Icons.more_vert_outlined),
+          onSelected: (value) => _handleMenuSelection(context, value),
+          itemBuilder: (context) => _buildMenuItems(),
+        ),
+      ],
+    );
   }
 }
