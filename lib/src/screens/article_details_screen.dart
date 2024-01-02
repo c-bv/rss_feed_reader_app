@@ -76,7 +76,7 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
                 ),
               ),
               const PopupMenuItem(
-                value: 'markAsRead',
+                value: 'markAsUnread',
                 child: ListTile(
                   leading: Icon(Icons.markunread),
                   title: Text('Mark as Unread'),
@@ -84,6 +84,7 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
               ),
             ],
             onSelected: (value) {
+              print(value);
               switch (value) {
                 case 'share':
                   // share article
