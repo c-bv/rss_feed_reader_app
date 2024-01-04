@@ -22,7 +22,7 @@ class FeedsService {
     var userFeeds =
         _firestore.collection('users').doc(_userId).collection('feeds');
     var feedsSnapshot =
-        await userFeeds.get(const GetOptions(source: Source.cache));
+        await userFeeds.get(const GetOptions(source: Source.serverAndCache));
 
     if (feedsSnapshot.docs.isEmpty) {
       feedsSnapshot = await userFeeds.get();
