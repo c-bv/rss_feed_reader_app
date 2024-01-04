@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:rss_feed_reader_app/src/models/feed.dart';
 import 'package:rss_feed_reader_app/src/providers/feed_provider.dart';
+import 'package:rss_feed_reader_app/src/providers/settings_provider.dart';
 
 class NavDrawer extends StatefulWidget {
   const NavDrawer({super.key});
@@ -13,6 +14,8 @@ class NavDrawer extends StatefulWidget {
 
 class _NavDrawerState extends State<NavDrawer> {
   FeedProvider get feedProvider => Provider.of<FeedProvider>(context);
+  SettingsProvider get settingsProvider =>
+      Provider.of<SettingsProvider>(context);
 
   int _getUnreadCount(Feed feed) {
     return feed.items!.where((article) => !article.read!).length;
@@ -49,12 +52,16 @@ class _NavDrawerState extends State<NavDrawer> {
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
-                    Text(
-                      '$unreadCount',
-                      style: const TextStyle(
-                        fontSize: 14.0,
+                    if (settingsProvider.showUnreadCount)
+                      Padding(
+                        padding: const EdgeInsets.only(left: 10.0),
+                        child: Text(
+                          '$unreadCount',
+                          style: const TextStyle(
+                            fontSize: 14.0,
+                          ),
+                        ),
                       ),
-                    ),
                   ],
                 ),
                 leading: CircleAvatar(

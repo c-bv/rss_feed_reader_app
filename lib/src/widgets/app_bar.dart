@@ -97,7 +97,7 @@ class _AppBarWidgetState extends State<AppBarWidget> {
     switch (value) {
       case 'settings':
         Navigator.of(context).push(
-          MaterialPageRoute(builder: (context) => const SettingsScreen()),
+          MaterialPageRoute(builder: (context) =>   SettingsScreen()),
         );
         break;
       case 'profile':

@@ -6,10 +6,11 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
 import 'package:rss_feed_reader_app/src/config/firebase_options.dart';
 import 'package:rss_feed_reader_app/src/providers/feed_provider.dart';
-import 'package:rss_feed_reader_app/src/providers/theme_provider.dart';
+import 'package:rss_feed_reader_app/src/providers/settings_provider.dart';
 import 'package:rss_feed_reader_app/src/screens/home_screen.dart';
 import 'package:rss_feed_reader_app/src/screens/sign_in_screen.dart';
 import 'package:rss_feed_reader_app/src/services/auth_service.dart';
+import 'package:rss_feed_reader_app/src/theme/app_themes.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -31,14 +32,16 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (context) => ThemeProvider()),
         ChangeNotifierProvider(create: (context) => FeedProvider()),
+        ChangeNotifierProvider(create: (context) => SettingsProvider()),
       ],
-      child: Consumer<ThemeProvider>(
-        builder: (context, themeProvider, child) {
+      child: Consumer<SettingsProvider>(
+        builder: (context, settings, child) {
           return MaterialApp(
             debugShowCheckedModeBanner: false,
-            theme: themeProvider.currentTheme,
+            theme: lightTheme,
+            darkTheme: darkTheme,
+            themeMode: settings.getThemeMode(), //
             home: AnimatedSplashScreen(
               splash: const FlutterLogo(size: 100),
               duration: 100,
