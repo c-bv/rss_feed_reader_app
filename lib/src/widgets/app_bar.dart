@@ -1,3 +1,5 @@
+// ignore_for_file: library_private_types_in_public_api
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:rss_feed_reader_app/src/providers/feed_provider.dart';
@@ -97,11 +99,10 @@ class _AppBarWidgetState extends State<AppBarWidget> {
     switch (value) {
       case 'settings':
         Navigator.of(context).push(
-          MaterialPageRoute(builder: (context) =>   SettingsScreen()),
+          MaterialPageRoute(builder: (context) => const SettingsScreen()),
         );
         break;
       case 'profile':
-        // Add your logic for profile
         break;
       case 'add_feed':
         Navigator.of(context).push(

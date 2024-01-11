@@ -73,7 +73,6 @@ class FeedsService {
   Future<List<Article>> getFilteredArticles(
       String? feedUrl, String? filterOption) async {
     List<Article> articles = await getArticlesByFeed(feedUrl);
-    articles.sort((a, b) => b.pubDate!.compareTo(a.pubDate!));
     switch (filterOption) {
       case 'all':
         return articles;

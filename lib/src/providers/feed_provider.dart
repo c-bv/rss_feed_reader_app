@@ -26,6 +26,7 @@ class FeedProvider with ChangeNotifier {
       : feeds.firstWhere((feed) => feed.link == _selectedFeedId).title;
 
   List<Article> get filteredArticles {
+    articles.sort((a, b) => b.pubDate!.compareTo(a.pubDate!));
     List<Article> filtered = _filterOption == 'all'
         ? articles
         : articles
