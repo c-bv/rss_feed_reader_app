@@ -58,16 +58,34 @@ enum SyncFrequency {
   }
 }
 
+enum SortOption {
+  newestFirst,
+  oldestFirst;
+
+  String get displayTitle {
+    switch (this) {
+      case SortOption.newestFirst:
+        return 'Newest first';
+      case SortOption.oldestFirst:
+        return 'Oldest first';
+      default:
+        return '';
+    }
+  }
+}
+
 class SettingsProvider extends ChangeNotifier {
   ThemeOption _themeOption = ThemeOption.system;
   bool _showUnreadCount = true;
   bool _syncOnAppStart = true;
   SyncFrequency _syncFrequency = SyncFrequency.oneHour;
+  SortOption _sortOption = SortOption.newestFirst;
 
   ThemeOption get themeOption => _themeOption;
   bool get showUnreadCount => _showUnreadCount;
   bool get syncOnAppStart => _syncOnAppStart;
   SyncFrequency get syncFrequency => _syncFrequency;
+  SortOption get sortOption => _sortOption;
 
   SettingsProvider() {
     loadPreferences();
@@ -81,6 +99,9 @@ class SettingsProvider extends ChangeNotifier {
 
     _showUnreadCount = prefs.getBool('showUnreadCount') ?? true;
     _syncOnAppStart = prefs.getBool('syncOnAppStart') ?? true;
+
+    int sortOptionIndex = prefs.getInt('sortOption') ?? SortOption.newestFirst.index;
+    _sortOption = SortOption.values[sortOptionIndex];
 
     notifyListeners();
   }
@@ -122,6 +143,13 @@ class SettingsProvider extends ChangeNotifier {
     _syncFrequency = SyncFrequency.values[value];
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setInt('syncFrequency', value);
+    notifyListeners();
+  }
+
+  void setSortOption(int value) async {
+    _sortOption = SortOption.values[value];
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('sortOption', value);
     notifyListeners();
   }
 }

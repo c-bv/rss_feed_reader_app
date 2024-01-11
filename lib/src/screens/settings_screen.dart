@@ -10,6 +10,7 @@ class SettingsScreen extends StatelessWidget {
     final settingsProvider = Provider.of<SettingsProvider>(context);
     final GlobalKey menuKey = GlobalKey();
     final GlobalKey menuKey2 = GlobalKey();
+    final GlobalKey menuKey3 = GlobalKey();
 
     return Scaffold(
       appBar: AppBar(title: const Text('Settings'), titleSpacing: 0.0),
@@ -63,6 +64,35 @@ class SettingsScreen extends StatelessWidget {
                     settingsProvider.setShowUnreadCount(value);
                   },
                 ),
+              ),
+              ListTile(
+                title: const Text('Sort by'),
+                subtitle: Text(settingsProvider.sortOption.displayTitle,
+                    style: const TextStyle(fontSize: 12)),
+                leading: const Icon(Icons.sort),
+                onTap: () {
+                  dynamic state = menuKey3.currentState;
+                  state.showButtonMenu();
+                },
+              ),
+              PopupMenuButton<SortOption>(
+                key: menuKey3,
+                onSelected: (value) {
+                  settingsProvider.setSortOption(value.index);
+                },
+                itemBuilder: (BuildContext context) => SortOption.values
+                    .map((SortOption option) => PopupMenuItem<SortOption>(
+                          value: option,
+                          child: Text(
+                            option.displayTitle,
+                            style: TextStyle(
+                                color: option == settingsProvider.sortOption
+                                    ? Theme.of(context).colorScheme.primary
+                                    : null),
+                          ),
+                        ))
+                    .toList(),
+                child: Container(),
               ),
             ],
           ),

@@ -37,7 +37,6 @@ class FeedProvider with ChangeNotifier {
           .where((article) => article.feedUrl == _selectedFeedId)
           .toList();
     }
-
     return filtered;
   }
 
@@ -64,7 +63,7 @@ class FeedProvider with ChangeNotifier {
     var localArticle = articles.firstWhere((a) => a.link == article.link);
     bool newReadStatus = !localArticle.read!;
     localArticle.read = newReadStatus;
-    
+
     await _feedsService.markArticleReadStatus(article, newReadStatus);
     notifyListeners();
   }
